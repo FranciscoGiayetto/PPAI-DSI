@@ -5,46 +5,33 @@
 
 ## ¿Por qué Django monolítico?
 
-Esta decisión de arquitectura no es casual: responde a un análisis concreto del problema, el equipo y las restricciones del proyecto.
+### Contexto
 
-### El problema de FastAPI + React para este caso
+- Equipo chico con fecha de entrega fija.
+- Lo que se evalúa es el **patrón Adapter**, la **consistencia entre diagramas y código** y que el sistema **funcione** en la defensa.
+- El servidor GPS lo provee la cátedra (Java/Spring Boot); nuestro sistema solo lo consume por HTTP.
 
-Una arquitectura separada (API REST + SPA) implica **tres procesos corriendo al mismo tiempo**:
+**Principio guía:** la complejidad técnica solo se justifica si aporta a lo que se evalúa.
 
-```
-Terminal 1 → Servidor GPS de la cátedra   (puerto 8001)  ← externo, obligatorio
-Terminal 2 → FastAPI backend               (puerto 8000)
-Terminal 3 → React (npm start)             (puerto 3000)
-```
+### Criterios y cómo los cubre Django
 
-Esto introduce riesgos que no aportan valor académico:
-- CORS mal configurado → la app no funciona
-- `npm install` lento en la defensa oral → tiempo perdido
-- Tres ambientes a sincronizar → tres puntos de falla
-- JWT manual → complejidad que el docente no evalúa
-- El patrón Adapter vive igual en Python, independientemente del framework web
+| Criterio | Django |
+|---|---|
+| Poco tiempo de configuración | Login, sesiones, base de datos, migraciones y panel de administración ya incluidos |
+| Arranque simple en la defensa | Un solo comando (`python manage.py runserver`) levanta la app y el servidor GPS |
+| Sin frontend separado | Las páginas se generan en el servidor: sin CORS, sin build, sin `npm install` |
+| Mapa de seguimiento | Google Maps se integra con JavaScript en la plantilla |
+| Patrón Adapter | Se implementa en clases Python puras (`bolsines/gps/`), independientes del framework |
 
-### Por qué Django es la decisión correcta de diseño
+### Costo aceptado y cómo lo mitigamos
 
-**Principio de diseño central: la complejidad debe justificarse con valor entregado.**
+Los modelos de Django combinan la clase del dominio con su persistencia en la base de datos.
+Esto puede alejar el código del diagrama de clases si la lógica termina escrita como consultas sueltas en las vistas.
 
-FastAPI + React resuelve el problema de escalar equipos grandes con frontend desacoplado.
-Nosotros somos un equipo pequeño con un deadline académico, donde lo que se califica es:
-el **patrón Adapter**, la **consistencia diagrama ↔ código**, y la **funcionalidad ejecutable**.
-
-| Criterio | Django monolítico | FastAPI + React |
-|---|---|---|
-| Servidores en defensa | **2** (GPS + Django) | 3 (GPS + API + React) |
-| Auth, sesiones | **Incluido** | Manual (JWT) |
-| ORM + migraciones | **Incluido** | SQLAlchemy + Alembic |
-| Admin para datos de prueba | **Incluido** | No existe |
-| Google Maps (mapa) | JS nativo en template | JS nativo en React |
-| Valor agregado sobre Adapter | Ninguno | Ninguno |
-| Tiempo de setup | **Bajo** | Alto |
-
-> Django no es la herramienta "más moderna" — es la herramienta **correcta para este problema**.
-> Un buen diseñador elige la herramienta que minimiza el riesgo y maximiza el tiempo
-> disponible para lo que importa.
+Para evitarlo:
+- Los métodos que aparecen en los diagramas (por ejemplo, los de `Bolsin` o `ComisionMedica`) se escriben como métodos de los modelos.
+- La lógica del caso de uso vive en el gestor (`services/gestor_seguimiento.py`), siguiendo el diagrama de secuencia.
+- Las vistas solo reciben la interacción del usuario y delegan en el gestor.
 
 ---
 
