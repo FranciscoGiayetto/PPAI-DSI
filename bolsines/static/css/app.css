@@ -187,7 +187,14 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font-family: va
 
 /* Seguimiento en móvil: hoja inferior que se arrastra */
 @media (max-width: 767px) {
-  .panel--detalle, .zoom { display: none !important; }
+  .panel--detalle { display: none !important; }
+  /* El grupo de zoom completo chocaría con la hoja (ambos anclados abajo) y el pellizco ya
+     acerca/aleja, así que solo se deja "centrar": sin él, arrastrar el mapa no tenía forma de
+     volver sin recargar la página o seleccionar un bolsín. */
+  .zoom {
+    bottom: auto; top: 88px; left: auto; right: var(--space-4); transform: none;
+  }
+  .zoom [data-zoom="-1"], .zoom [data-zoom="1"] { display: none; }
   .panel--lista {
     left: 0; right: 0; width: auto; top: auto; bottom: 0;
     height: var(--hoja-alto, 250px); max-height: calc(100vh - 80px);
