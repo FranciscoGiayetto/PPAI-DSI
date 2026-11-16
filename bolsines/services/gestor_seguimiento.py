@@ -45,6 +45,16 @@ def _coord(cm: ComisionMedica) -> tuple[float, float]:
     return COORDENADAS_CM.get(cm.codigo, _POR_DEFECTO)
 
 
+def _historial(b: Bolsin) -> list[dict]:
+    """Cambios de estado del bolsín, del más antiguo al más reciente."""
+    return [{
+        'estado_anterior': c.estado_anterior,
+        'estado_nuevo': c.estado_nuevo,
+        'empleado': f'{c.empleado.user.get_full_name() or c.empleado.user.username} (Leg. {c.empleado.legajo})',
+        'fecha_hora': timezone.localtime(c.fecha_hora).strftime('%d/%m/%Y %H:%M'),
+    } for c in b.cambios_estado.select_related('empleado__user').order_by('fecha_hora')]
+
+
 def _nombre_corto(cm: ComisionMedica) -> str:
     return cm.nombre.replace('Comisión Médica Jurisdiccional', 'CMJ').replace('Comisión Médica Central', 'CMC')
 
@@ -121,6 +131,7 @@ class GestorSeguimientoBolsines:
             'peso_kg': round(b.peso_gramos / 1000, 1), 'remitos': len(b.remitos.all()),
             'salio': b.fecha.strftime('%d/%m'), 'gps': modelo,
             'destino_lat': d_lat, 'destino_lng': d_lng,
+            'historial': _historial(b),
         }
         if fila is None:   # el GPS no informó este bolsín (A3)
             return {**base, 'avance': 0, 'sin_senal': True, 'lat': None, 'lng': None,

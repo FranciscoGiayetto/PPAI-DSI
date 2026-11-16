@@ -89,3 +89,8 @@
 .bol-aviso.is-error .bol-aviso__punto{background:var(--error);box-shadow:0 0 0 5px var(--error-fondo)}
 .bol-aviso__cerrar{width:36px;height:36px;border-radius:var(--radius-pill);border:0;background:var(--superficie-suave);color:var(--tinta);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
 @media (prefers-reduced-motion:reduce){.bol-interruptor__perilla,.bol-boton,.bol-marcador{transition:none}}
+.bol-nav__item.is-proximamente{position:relative;cursor:not-allowed}
+.bol-nav__item.is-proximamente>svg,.bol-nav__item.is-proximamente>.bol-nav__texto{opacity:.35}
+.bol-nav__item.is-proximamente:hover{background:transparent}
+.nav-pronto{position:absolute;top:2px;right:-4px;padding:1px 5px;border-radius:var(--radius-pill);background:var(--tinta);color:var(--fondo);font-family:var(--font-sans);font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:1.4;pointer-events:none}
+.bol-nav--movil .nav-pronto{top:4px;right:calc(50% - 26px)}

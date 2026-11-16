@@ -119,6 +119,8 @@
     $('[data-remitos]', el).textContent = dosDigitos(b.remitos);
     $('[data-salio]', el).textContent = b.salio;
     $('[data-gps]', el).textContent = b.gps;
+    var btnHistorial = $('[data-historial]', el);
+    btnHistorial.addEventListener('click', function () { abrirHistorial(b, btnHistorial); });
     var avisar = $('[data-avisar]', el);
     avisar.disabled = b.sin_senal;   // sin ubicación no hay nada para avisar
     avisar.addEventListener('click', function () { abrirDialogo(b, avisar); });
@@ -207,6 +209,37 @@
       .catch(function () { avisar('No se pudo enviar el correo.', true); });
   });
   velo.addEventListener('click', function (e) { if (e.target === velo) cerrarDialogo(); });
+
+  /* ───── historial de estados ───── */
+  var veloHistorial = $('[data-velo-historial]'), volverFocoHistorial = null;
+  function abrirHistorial(b, origenFoco) {
+    volverFocoHistorial = origenFoco;
+    $('[data-historial-subtitulo]').textContent = 'Bolsín ' + nro(b.nro) + ' · precinto ' + b.precinto + ' · hacia ' + b.destino;
+    var ol = $('[data-historial-lista]');
+    ol.innerHTML = '';
+    if (!b.historial.length) {
+      ol.innerHTML = '<li class="t-cuerpo-s text-tinta-tenue">No hay cambios de estado registrados.</li>';
+    }
+    b.historial.forEach(function (h) {
+      var li = document.createElement('li');
+      li.className = 'historial__paso';
+      li.innerHTML =
+        '<div class="historial__cabecera"><span class="historial__estado">' + texto(h.estado_nuevo) + '</span>' +
+        '<span class="historial__fecha">' + texto(h.fecha_hora) + '</span></div>' +
+        '<p class="historial__detalle">' +
+        (h.estado_anterior && h.estado_anterior !== '—' ? 'Desde ' + texto(h.estado_anterior) + ' · ' : 'Alta del bolsín · ') +
+        texto(h.empleado) + '</p>';
+      ol.appendChild(li);
+    });
+    veloHistorial.hidden = false;
+    $('[data-historial-cerrar]').focus();
+  }
+  function cerrarHistorial() { veloHistorial.hidden = true; if (volverFocoHistorial) volverFocoHistorial.focus(); }
+  $('[data-historial-cerrar]').addEventListener('click', cerrarHistorial);
+  veloHistorial.addEventListener('click', function (e) { if (e.target === veloHistorial) cerrarHistorial(); });
+  document.addEventListener('keydown', function (e) {
+    if (!veloHistorial.hidden && e.key === 'Escape') cerrarHistorial();
+  });
   document.addEventListener('keydown', function (e) {
     if (velo.hidden) return;
     if (e.key === 'Escape') { cerrarDialogo(); return; }

@@ -32,6 +32,21 @@
     background: transparent !important;
     border: none !important;
   }
+  /* Historial de estados: línea de tiempo vertical */
+  .historial { max-width: 520px; width: 100%; }
+  .historial__lista { list-style: none; margin: 16px 0 0; padding: 0; max-height: 360px; overflow-y: auto; }
+  .historial__paso { position: relative; padding: 0 0 16px 30px; }
+  .historial__paso::before {
+    content: ''; position: absolute; left: 5px; top: 6px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--acento, #f43f5e); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acento, #f43f5e) 25%, transparent);
+  }
+  .historial__paso:not(:last-child)::after {
+    content: ''; position: absolute; left: 10px; top: 22px; bottom: 0; width: 2px; background: var(--linea);
+  }
+  .historial__cabecera { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .historial__estado { font-weight: 700; color: var(--tinta); }
+  .historial__fecha { font-family: var(--font-mono, monospace); font-size: 12px; color: var(--tinta-tenue); }
+  .historial__detalle { margin-top: 2px; font-size: 13px; color: var(--tinta-suave); }
   /* Pin del bolsín seleccionado: la punta inferior queda sobre la coordenada */
   .mapa__gota {
     position: relative;
@@ -278,6 +293,18 @@
   </div>
 </div>
 
+{# ── Diálogo de historial de estados del bolsín ── #}
+<div class="bol-velo velo-fijo" data-velo-historial hidden>
+  <div class="bol-vidrio bol-dialogo historial" role="dialog" aria-modal="true" aria-labelledby="historial-titulo" aria-describedby="historial-subtitulo">
+    <h2 id="historial-titulo" class="bol-dialogo__titulo">Historial de estados</h2>
+    <p id="historial-subtitulo" class="t-cuerpo text-tinta-suave" data-historial-subtitulo></p>
+    <ol class="historial__lista" data-historial-lista></ol>
+    <div class="bol-dialogo__acciones">
+      <button type="button" class="bol-boton bol-boton--secundario" data-historial-cerrar>Cerrar</button>
+    </div>
+  </div>
+</div>
+
 {# ── Plantillas de componentes (marcado de componentes.html) ── #}
 <template id="tpl-item">
   <button type="button" role="listitem" aria-pressed="false" class="bol-item">
@@ -331,7 +358,7 @@
 
     <div class="detalle__acciones">
       <button type="button" class="bol-boton bol-boton--primario bol-boton--ancho" data-avisar>{% include "iconos/correo.svg" %}<span>Avisarle al gerente de destino</span></button>
-      <button type="button" class="bol-boton bol-boton--fantasma">Ver historial de estados</button>
+      <button type="button" class="bol-boton bol-boton--fantasma" data-historial>Ver historial de estados</button>
     </div>
   </div>
 </template>

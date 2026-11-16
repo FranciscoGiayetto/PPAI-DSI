@@ -1,11 +1,12 @@
 """Carga datos de prueba: CMs, un Encargado de Bolsines y bolsines Enviados desde CMJ Córdoba."""
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 
-from bolsines.models import Bolsin, ComisionMedica, Empleado, Remito
+from bolsines.models import Bolsin, CambioEstadoBolsin, ComisionMedica, Empleado, Remito
 
 # Códigos alineados con los bolsines precargados en el servidor GPS de la cátedra (gps-api).
 CMS = [
@@ -28,6 +29,20 @@ GERENTES = [('gcm-ros', '50101', 'CM-ROS-02', 'abdalavaleria@gmail.com'),
             ('gcm-mdz', '50102', 'CM-MDZ-03', 'mateo.crespo100@gmail.com'),
             ('gcm-ba', '50103', 'CM-BA-01', 'maurobastasiniprof@gmail.com')]
 
+def cargar_historial(bolsin: Bolsin, empleado: Empleado) -> None:
+    """Crea los cambios de estado hasta el estado actual del bolsín (Creado → Cerrado → Enviado), si no tiene."""
+    if bolsin.cambios_estado.exists():
+        return
+    pasos = [('—', Bolsin.ESTADO_CREADO, 0), (Bolsin.ESTADO_CREADO, Bolsin.ESTADO_CERRADO, 135),
+             (Bolsin.ESTADO_CERRADO, Bolsin.ESTADO_ENVIADO, 300)]
+    inicio = timezone.make_aware(datetime.combine(bolsin.fecha, time(9, 0)))
+    for anterior, nuevo, minutos in pasos:
+        CambioEstadoBolsin.objects.create(bolsin=bolsin, estado_anterior=anterior, estado_nuevo=nuevo,
+                                          empleado=empleado, fecha_hora=inicio + timedelta(minutes=minutos))
+        if nuevo == bolsin.estado_actual:
+            break
+
+
 class Command(BaseCommand):
     help = 'Carga datos de prueba (usuario: legajo 40211 / contraseña bolsines2026).'
 
@@ -42,7 +57,7 @@ class Command(BaseCommand):
             'first_name': 'Lucía', 'last_name': 'Ferreyra'})
         user.set_password('bolsines2026')
         user.save()
-        Empleado.objects.update_or_create(user=user, defaults={
+        encargado, _ = Empleado.objects.update_or_create(user=user, defaults={
             'legajo': '40211', 'rol': Empleado.ROL_ENCARGADO_BOLSINES, 'cm_asignada': cms['CM-CBA-01']})
 
         for username, legajo, cm, mail in GERENTES:
@@ -66,6 +81,7 @@ class Command(BaseCommand):
                 Remito.objects.update_or_create(nro_remito=nro_remito, defaults={
                     'bolsin': bolsin, 'cm_destino': cms[destino],
                     'estado_actual': Remito.ESTADO_EN_BOLSIN_ENVIADO})
+            cargar_historial(bolsin, encargado)
 
         self.stdout.write(self.style.SUCCESS(
             'Datos cargados. Ingresá con legajo 40211 y contraseña bolsines2026.'))
