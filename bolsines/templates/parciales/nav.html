@@ -1,0 +1,28 @@
+{# Barra de navegación (componentes/BarraNav.md). Escritorio arriba al centro; móvil, tab bar abajo. #}
+<header class="nav-escritorio">
+  <nav aria-label="Principal" class="bol-vidrio bol-nav bol-nav--escritorio">
+    <a href="{% url 'dashboard' %}" class="bol-nav__logo" aria-label="Bolsines, ir al inicio">
+      <span data-logo-animado data-color="var(--tinta)" style="display:inline-block;height:22px;width:110px"></span>
+    </a>
+    <a href="{% url 'dashboard' %}" aria-label="Inicio" title="Inicio" class="bol-nav__item{% if nav_activo == 'inicio' %} is-activo{% endif %}"{% if nav_activo == 'inicio' %} aria-current="page"{% endif %}>
+      {% include "iconos/inicio.svg" %}{% if nav_activo == 'inicio' %}<span class="bol-nav__texto">Inicio</span>{% endif %}
+    </a>
+    <a href="#" aria-label="Bolsines (próximamente)" title="Bolsines" class="bol-nav__item">{% include "iconos/bolsa.svg" %}</a>
+    <a href="{% url 'seguimiento' %}" aria-label="Seguimiento" title="Seguimiento" class="bol-nav__item{% if nav_activo == 'seguimiento' %} is-activo{% endif %}"{% if nav_activo == 'seguimiento' %} aria-current="page"{% endif %}>
+      {% include "iconos/camioncito.svg" %}{% if nav_activo == 'seguimiento' %}<span class="bol-nav__texto">Seguimiento</span>{% endif %}
+    </a>
+    <a href="#" aria-label="Remitos (próximamente)" title="Remitos" class="bol-nav__item">{% include "iconos/remitos.svg" %}</a>
+    <span class="nav-separador" aria-hidden="true"></span>
+    {% if cm_nombre %}<span class="nav-cm t-etiqueta">{{ cm_nombre|upper }}</span>{% endif %}
+    {% include "parciales/interruptor.html" %}
+    <span class="nav-avatar" title="{{ request.user.get_full_name|default:request.user.username }}" aria-hidden="true">{{ request.user.first_name|default:request.user.username|slice:":1"|upper }}</span>
+    <a href="{% url 'logout' %}" aria-label="Salir" title="Salir" class="bol-nav__item">{% include "iconos/salir.svg" %}</a>
+  </nav>
+</header>
+
+<nav aria-label="Principal" class="nav-movil bol-vidrio bol-nav bol-nav--movil">
+  <a href="{% url 'dashboard' %}" class="bol-nav__item{% if nav_activo == 'inicio' %} is-activo{% endif %}"{% if nav_activo == 'inicio' %} aria-current="page"{% endif %}>{% include "iconos/inicio.svg" %}<span class="bol-nav__texto">Inicio</span></a>
+  <a href="#" class="bol-nav__item">{% include "iconos/bolsa.svg" %}<span class="bol-nav__texto">Bolsines</span></a>
+  <a href="{% url 'seguimiento' %}" class="bol-nav__item{% if nav_activo == 'seguimiento' %} is-activo{% endif %}"{% if nav_activo == 'seguimiento' %} aria-current="page"{% endif %}>{% include "iconos/camioncito.svg" %}<span class="bol-nav__texto">Seguimiento</span></a>
+  <a href="#" class="bol-nav__item">{% include "iconos/remitos.svg" %}<span class="bol-nav__texto">Remitos</span></a>
+</nav>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+{% block body_class %}pagina-app{% endblock %}
+
+{% block content %}
+<div class="bol-demo-mapa fondo-app" aria-hidden="true"></div>
+{% include "parciales/nav.html" %}
+<main class="dashboard">
+  <p class="t-etiqueta text-tinta-tenue">INICIO</p>
+  <h1 class="t-display-xl mt-3">Hola, {{ request.user.first_name|default:request.user.username }}</h1>
+  <p class="t-cuerpo text-tinta-suave mt-3">¿Qué querés hacer hoy?</p>
+  <div class="dashboard__accesos mt-8">
+    <a href="{% url 'seguimiento' %}" class="bol-vidrio dashboard__acceso">
+      <span class="bol-item__icono">{% include "iconos/camioncito.svg" %}</span>
+      <span class="t-display-s">Seguimiento</span>
+      <span class="t-cuerpo-s text-tinta-tenue">Mirá dónde están tus bolsines enviados.</span>
+    </a>
+    <div class="bol-vidrio dashboard__acceso is-pronto">
+      <span class="bol-item__icono">{% include "iconos/bolsa.svg" %}</span>
+      <span class="t-display-s">Bolsines</span>
+      <span class="t-cuerpo-s text-tinta-tenue">Próximamente.</span>
+    </div>
+    <div class="bol-vidrio dashboard__acceso is-pronto">
+      <span class="bol-item__icono">{% include "iconos/remitos.svg" %}</span>
+      <span class="t-display-s">Remitos</span>
+      <span class="t-cuerpo-s text-tinta-tenue">Próximamente.</span>
+    </div>
+  </div>
+</main>
+{% endblock %}

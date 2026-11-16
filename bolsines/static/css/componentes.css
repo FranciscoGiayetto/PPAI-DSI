@@ -1,0 +1,91 @@
+/* Bolsines — estilos de componentes. Todo valor sale de tokens.css. */
+.bol-icono{flex:0 0 auto;display:block}
+.bol-vidrio{background:var(--superficie-vidrio);-webkit-backdrop-filter:blur(var(--vidrio-blur)) saturate(var(--vidrio-saturacion));backdrop-filter:blur(var(--vidrio-blur)) saturate(var(--vidrio-saturacion));border:1px solid var(--linea);box-shadow:var(--sombra-vidrio);border-radius:var(--radius-xl);color:var(--tinta)}
+.bol-demo-mapa{background-color:var(--fondo);background-image:linear-gradient(115deg,transparent 46%,var(--mapa-calle) 46%,var(--mapa-calle) 47.2%,transparent 47.2%),linear-gradient(20deg,transparent 60%,var(--mapa-calle) 60%,var(--mapa-calle) 61%,transparent 61%),radial-gradient(circle at 30% 40%,var(--azul) 0,transparent 140px),radial-gradient(circle at 75% 70%,var(--amarillo) 0,transparent 110px)}
+/* botones */
+.bol-boton{height:52px;padding:0 22px;border-radius:var(--radius-pill);border:0;display:inline-flex;align-items:center;justify-content:center;gap:var(--space-2);font-family:var(--font-sans);font-size:15px;font-weight:700;line-height:1;cursor:pointer;transition:transform .12s ease,filter .12s ease}
+.bol-boton:hover{filter:brightness(1.06)}.bol-boton:active{transform:scale(.98)}
+.bol-boton:focus-visible,.bol-boton-icono:focus-visible,.bol-chip:focus-visible,.bol-item:focus-visible,.bol-marcador:focus-visible,.bol-nav__item:focus-visible,.bol-interruptor:focus-visible{outline:2px solid var(--acento);outline-offset:3px}
+.bol-boton--primario{background:var(--sello);color:var(--sobre-sello)}
+.bol-boton--marca{background:var(--marca);color:var(--sobre-marca-texto)}
+.bol-boton--secundario{background:var(--superficie-suave);color:var(--tinta);border:1px solid var(--linea)}
+.bol-boton--fantasma{background:transparent;color:var(--acento);padding:0 12px}
+.bol-boton--peligro{background:transparent;color:var(--error);border:1px solid var(--error);height:44px}
+.bol-boton--ancho{width:100%}
+.bol-boton[disabled]{opacity:.45;cursor:not-allowed}
+.bol-boton-icono{width:48px;height:48px;border-radius:var(--radius-pill);border:0;background:transparent;color:var(--tinta-suave);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.bol-boton-icono:hover{background:var(--superficie-suave)}
+.bol-boton-icono.is-activo{background:var(--acento);color:var(--sobre-acento)}
+/* campos */
+.bol-campo{display:flex;flex-direction:column;gap:var(--space-2);font-family:var(--font-sans);color:var(--tinta)}
+.bol-campo__label{font-size:13px;font-weight:500}
+.bol-campo__caja{position:relative;display:flex;align-items:center;height:52px;border-radius:var(--radius-pill);border:1px solid var(--linea);background:var(--superficie-suave);padding:0 20px;gap:var(--space-2)}
+.bol-campo__caja:focus-within{border-color:var(--acento);box-shadow:0 0 0 3px color-mix(in srgb,var(--acento) 25%,transparent)}
+.bol-campo__caja.is-error{border-color:var(--error)}
+.bol-campo__caja.con-accion{padding-right:4px}
+.bol-campo__icono{color:var(--tinta-tenue)}
+.bol-campo input{flex:1 1 auto;min-width:0;height:100%;border:0;background:transparent;color:var(--tinta);font:inherit;font-size:15px;outline:none}
+.bol-campo input::placeholder{color:var(--tinta-debil)}
+.bol-campo__ayuda{font-size:13px;color:var(--tinta-tenue)}.bol-campo__error{font-size:13px;color:var(--error)}
+/* chips */
+.bol-chip{height:34px;padding:0 14px;border-radius:var(--radius-pill);border:1px solid var(--linea);background:transparent;color:var(--tinta-suave);font-family:var(--font-sans);font-size:12px;font-weight:500;cursor:pointer}
+.bol-chip.is-activo{background:var(--tinta);color:var(--fondo);border-color:var(--tinta)}
+/* barra de navegación */
+.bol-nav{display:inline-flex;align-items:center;gap:var(--space-1);padding:8px;border-radius:var(--radius-pill)}
+.bol-nav__logo{display:inline-flex;align-items:center;height:48px;padding:0 14px}
+.bol-nav__item{height:48px;min-width:48px;border-radius:var(--radius-pill);display:inline-flex;align-items:center;justify-content:center;gap:10px;color:var(--tinta-suave);text-decoration:none;font-family:var(--font-sans);font-size:14px;font-weight:700}
+.bol-nav__item:hover{background:var(--superficie-suave)}
+.bol-nav--escritorio .bol-nav__item.is-activo{background:var(--acento);color:var(--sobre-acento);padding:0 20px 0 16px}
+.bol-nav--movil{display:flex;justify-content:space-around;width:100%;max-width:420px;padding:6px}
+.bol-nav--movil .bol-nav__item{flex:1 1 0;flex-direction:column;gap:2px;height:58px;font-size:11px;font-weight:500;border-radius:22px}
+.bol-nav--movil .bol-nav__item.is-activo{background:var(--acento);color:var(--sobre-acento)}
+/* interruptor */
+.bol-interruptor{width:104px;height:52px;border-radius:var(--radius-pill);border:1px solid var(--linea);background:var(--superficie-suave);padding:5px;display:flex;align-items:center;cursor:pointer}
+.bol-interruptor__perilla{width:42px;height:42px;border-radius:50%;background:var(--marca);color:var(--sobre-marca);display:inline-flex;align-items:center;justify-content:center;transition:transform .35s cubic-bezier(.3,1.4,.5,1)}
+.bol-interruptor.is-claro .bol-interruptor__perilla{transform:translateX(52px)}
+/* cinta */
+.bol-cinta{height:34px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;background:var(--sello);color:var(--sobre-sello);font-family:var(--font-display);font-size:18px;letter-spacing:.14em;transform:rotate(-2.5deg);margin:0 -20px;box-shadow:0 6px 16px rgba(0,0,0,.3)}
+.bol-cinta.is-error{background:var(--rojo)}
+/* ítem de bolsín */
+.bol-item{width:100%;text-align:left;border:0;background:transparent;color:var(--tinta);border-radius:var(--radius-l);padding:14px 12px;display:flex;align-items:center;gap:14px;cursor:pointer;font-family:var(--font-sans)}
+.bol-item:hover{background:var(--superficie-suave)}
+.bol-item.is-sel{background:color-mix(in srgb,var(--acento) 14%,transparent)}
+.bol-item__icono{width:44px;height:44px;flex:0 0 auto;border-radius:var(--radius-m);display:inline-flex;align-items:center;justify-content:center;background:var(--superficie-suave);color:var(--acento)}
+.bol-item.is-sel .bol-item__icono{background:var(--sello);color:var(--sobre-sello)}
+.bol-item.is-error .bol-item__icono{background:var(--error-fondo);color:var(--error)}
+.bol-item__cuerpo{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.bol-item__fila{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.bol-item__nro{font-family:var(--font-display);font-size:26px;line-height:1;letter-spacing:.03em}
+.bol-item__hace{font-size:12px;color:var(--tinta-debil)}.bol-item.is-error .bol-item__hace{color:var(--error)}
+.bol-item__destino{font-size:13px;color:var(--tinta-suave)}
+.bol-item__precinto{font-family:var(--font-mono);font-size:12px;color:var(--tinta-debil)}
+/* trayecto */
+.bol-trayecto{display:flex;flex-direction:column;gap:10px;color:var(--tinta)}
+.bol-trayecto__nombres{display:flex;justify-content:space-between;font-family:var(--font-display);font-size:20px;letter-spacing:.04em}
+.bol-trayecto__pista{position:relative;height:24px}
+.bol-trayecto__linea{position:absolute;left:0;right:0;top:11px;border-top:2px dashed var(--linea)}
+.bol-trayecto__hecho{position:absolute;left:0;top:10px;height:4px;border-radius:4px;background:var(--acento)}
+.bol-trayecto.is-error .bol-trayecto__hecho{background:var(--rojo)}
+.bol-trayecto__origen{position:absolute;left:0;top:5px;width:14px;height:14px;border-radius:50%;background:var(--azul);border:2px solid var(--crema)}
+.bol-trayecto__destino{position:absolute;right:0;top:5px;width:14px;height:14px;border-radius:50%;border:2px solid var(--info);background:var(--fondo)}
+.bol-trayecto__marca{position:absolute;top:-5px;transform:translateX(-50%);width:34px;height:34px;border-radius:11px;background:var(--sello);color:var(--sobre-sello);display:inline-flex;align-items:center;justify-content:center;border:2px solid var(--fondo)}
+.bol-trayecto.is-error .bol-trayecto__marca{background:var(--rojo)}
+.bol-trayecto__q{font-family:var(--font-display);font-size:22px}
+/* marcador del mapa */
+.bol-marcador{width:40px;height:40px;border-radius:var(--radius-m);border:2px solid var(--fondo);background:var(--sello);color:var(--sobre-sello);display:inline-flex;align-items:center;justify-content:center;padding:0;box-shadow:var(--sombra-marcador);cursor:pointer;transition:transform .2s ease}
+.bol-marcador.is-sel{width:52px;height:52px;border:3px solid var(--acento);box-shadow:0 0 0 10px color-mix(in srgb,var(--sello) 24%,transparent),var(--sombra-marcador)}
+/* alerta */
+.bol-alerta{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border-radius:var(--radius-l);background:var(--error-fondo);border:1px solid color-mix(in srgb,var(--error) 45%,transparent);font-family:var(--font-sans)}
+.bol-alerta__titulo{font-family:var(--font-display);font-weight:400;font-size:24px;letter-spacing:.03em;color:var(--error)}
+.bol-alerta__texto{font-size:13px;line-height:1.5;color:var(--tinta)}
+/* diálogo */
+.bol-velo{position:absolute;inset:0;background:var(--velo);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px}
+.bol-dialogo{width:100%;max-width:460px;padding:30px;border-radius:30px;display:flex;flex-direction:column;gap:20px;font-family:var(--font-sans)}
+.bol-dialogo__titulo{margin:0;font-family:var(--font-display);font-weight:400;font-size:40px;line-height:.95;letter-spacing:.02em}
+.bol-dialogo__acciones{display:flex;flex-wrap:wrap;gap:10px}.bol-dialogo__acciones>*{flex:1 1 140px}
+/* aviso */
+.bol-aviso{display:inline-flex;align-items:center;gap:12px;padding:10px 10px 10px 18px;border-radius:var(--radius-pill);font-family:var(--font-sans);font-size:14px}
+.bol-aviso__punto{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 5px var(--ok-fondo)}
+.bol-aviso.is-error .bol-aviso__punto{background:var(--error);box-shadow:0 0 0 5px var(--error-fondo)}
+.bol-aviso__cerrar{width:36px;height:36px;border-radius:var(--radius-pill);border:0;background:var(--superficie-suave);color:var(--tinta);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.bol-interruptor__perilla,.bol-boton,.bol-marcador{transition:none}}

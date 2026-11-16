@@ -131,10 +131,18 @@ Todo cambio de estado registra: empleado responsable + fecha/hora exacta (`Cambi
 
 ## 6. Diseño UX/UI — Lineamientos
 
+### Design system (fuente de verdad visual)
+> ⚠️ **Antes de tocar templates, CSS o JS de interfaz, leer `docs/design-system/README.md`.**
+> Ahí están los tokens (`tokens.css`), los componentes con su HTML de referencia (`componentes.html`),
+> la especificación de cada pantalla (`pantallas.md`), logos, íconos y animaciones.
+
 ### Principios
-- Diseño **web**, orientado a escritorio (pantallas de oficina estatal).
-- **Tailwind CSS** para estilos (ya configurado en `base.html`).
-- Paleta: azul institucional (`blue-700/800`), blanco, grises neutros.
+- Diseño **web**, escritorio primero y adaptable a móvil (tab bar abajo, hoja inferior).
+- **Tailwind CSS** + variables CSS de `docs/design-system/tokens.css` (nunca hex sueltos).
+- **Tema oscuro por defecto** (`data-theme="oscuro"`, fondo #242424) y tema claro crema (`data-theme="claro"`).
+- Paleta de marca: amarillo #FDBD4F, azul #0C5EBC, azul noche #16324F, crema #FFF7EB, celeste #A8DADC.
+- Tipografías: Bebas Neue (títulos y números), Roboto (interfaz), Roboto Mono (precintos y coordenadas).
+- El mapa ocupa toda la pantalla y los paneles flotan encima en vidrio.
 
 ### Patrones de GUI a implementar (obligatorio para Entrega 2)
 | Patrón | Dónde aplicarlo |
@@ -331,9 +339,9 @@ PPAI-DSI/
 | GPS Factory | ✅ Implementada |
 | GPS Adapters (3 modelos) | 🔲 Stubs — pendiente diseño |
 | GestorConsultaSeguimiento | 🔲 Stub — pendiente diseño |
-| Vista CU 36 | 🔲 Placeholder — pendiente diseño |
-| Template seguimiento | 🔲 Placeholder — pendiente diseño |
-| Login / Dashboard / Base template | ✅ Implementados |
+| Vista CU 36 | 🟡 Con ubicaciones **simuladas** hasta que exista el Gestor (ver `docs/decisiones-esteticas.md`) |
+| Template seguimiento | ✅ Con el design system aplicado (master-detail, mapa, filtros, A1/A2/A3, diálogo, móvil) |
+| Login / Dashboard / Base template | ✅ Con el design system aplicado (tema oscuro por defecto + interruptor) |
 | Tests adapters | ✅ Escritos (prueban stubs y factory) |
 | Seed DB | ✅ `python manage.py seed_db` |
 
