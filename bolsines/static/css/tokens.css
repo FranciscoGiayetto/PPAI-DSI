@@ -1,0 +1,108 @@
+/* Bolsines — tokens generados desde tokens.json. No editar a mano: cambiar tokens.json. */
+
+:root, [data-theme="oscuro"] {
+  --amarillo: #FDBD4F;
+  --azul: #0C5EBC;
+  --azul-noche: #16324F;
+  --crema: #FFF7EB;
+  --gris: #242424;
+  --celeste: #A8DADC;
+  --rojo: #FF4F63;
+  --fondo: var(--gris);
+  --superficie-vidrio: rgba(36,36,36,.52);
+  --superficie-suave: rgba(255,247,235,.06);
+  --linea: rgba(255,247,235,.13);
+  --tinta: var(--crema);
+  --tinta-suave: #D9D3C9;
+  --tinta-tenue: #B3ADA3;
+  --tinta-debil: #9C978F;
+  --acento: var(--amarillo);
+  --sobre-acento: var(--gris);
+  --sello: var(--amarillo);
+  --sobre-sello: var(--gris);
+  --marca: var(--amarillo);
+  --sobre-marca: var(--azul);
+  --sobre-marca-texto: var(--azul-noche);
+  --error: #FF7A8A;
+  --error-fondo: rgba(255,79,99,.12);
+  --ok: #5FD39A;
+  --ok-fondo: rgba(95,211,154,.14);
+  --info: var(--celeste);
+  --mapa-agua: #1C1C1C;
+  --mapa-calle: #3A3A3A;
+  --mapa-limite: #2E2E2E;
+  --velo: rgba(20,20,20,.55);
+  --sombra-vidrio: inset 0 1px 0 rgba(255,247,235,.14), 0 24px 60px rgba(0,0,0,.45);
+  --sombra-marcador: 0 6px 16px rgba(0,0,0,.45);
+  color-scheme: dark;
+}
+
+[data-theme="claro"] {
+  --amarillo: #FDBD4F;
+  --azul: #0C5EBC;
+  --azul-noche: #16324F;
+  --crema: #FFF7EB;
+  --gris: #242424;
+  --celeste: #A8DADC;
+  --rojo: #FF4F63;
+  --fondo: #F3E4C6;
+  --superficie-vidrio: rgba(255,249,238,.62);
+  --superficie-suave: rgba(22,50,79,.05);
+  --linea: rgba(22,50,79,.13);
+  --tinta: var(--azul-noche);
+  --tinta-suave: #2C4866;
+  --tinta-tenue: #4F5B68;
+  --tinta-debil: #5F6873;
+  --acento: var(--azul);
+  --sobre-acento: var(--crema);
+  --sello: var(--amarillo);
+  --sobre-sello: var(--azul-noche);
+  --marca: var(--azul);
+  --sobre-marca: var(--amarillo);
+  --sobre-marca-texto: var(--crema);
+  --error: #B5233A;
+  --error-fondo: rgba(201,40,62,.09);
+  --ok: #17694A;
+  --ok-fondo: rgba(23,105,74,.10);
+  --info: var(--azul);
+  --mapa-agua: #BFDCD8;
+  --mapa-calle: #FCF5E8;
+  --mapa-limite: #E0CCA4;
+  --velo: rgba(22,50,79,.22);
+  --sombra-vidrio: inset 0 1px 0 rgba(255,255,255,.75), 0 24px 60px rgba(22,50,79,.16);
+  --sombra-marcador: 0 6px 16px rgba(22,50,79,.25);
+  color-scheme: light;
+}
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-s: 10px;
+  --radius-m: 14px;
+  --radius-l: 18px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+  --vidrio-blur: 22px;
+  --vidrio-saturacion: 160%;
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-sans: Roboto, system-ui, sans-serif;
+  --font-mono: "Roboto Mono", ui-monospace, monospace;
+}
+
+.t-display-xl { font-family: var(--font-display); font-size: 88px; line-height: 0.86; font-weight: 400; letter-spacing: 0.01em; }
+.t-display-l { font-family: var(--font-display); font-size: 76px; line-height: 0.85; font-weight: 400; letter-spacing: 0.01em; }
+.t-display-m { font-family: var(--font-display); font-size: 44px; line-height: 0.9; font-weight: 400; letter-spacing: 0.02em; }
+.t-display-s { font-family: var(--font-display); font-size: 26px; line-height: 1; font-weight: 400; letter-spacing: 0.03em; }
+.t-cinta { font-family: var(--font-display); font-size: 18px; line-height: 1; font-weight: 400; letter-spacing: 0.14em; }
+.t-titulo { font-family: var(--font-sans); font-size: 20px; line-height: 1.25; font-weight: 700; }
+.t-cuerpo { font-family: var(--font-sans); font-size: 15px; line-height: 1.5; font-weight: 400; }
+.t-cuerpo-s { font-family: var(--font-sans); font-size: 13px; line-height: 1.5; font-weight: 400; }
+.t-boton { font-family: var(--font-sans); font-size: 15px; line-height: 1; font-weight: 700; }
+.t-etiqueta { font-family: var(--font-sans); font-size: 12px; line-height: 1.2; font-weight: 500; letter-spacing: 0.1em; }
+.t-dato { font-family: var(--font-mono); font-size: 14px; line-height: 1.4; font-weight: 500; }

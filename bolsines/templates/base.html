@@ -1,0 +1,60 @@
+{% load static %}<!doctype html>
+<html lang="es" data-theme="oscuro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Bolsines{% endblock %} · Bolsines</title>
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+
+  {# Tema antes de pintar: evita el parpadeo. Oscuro por defecto. #}
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('bolsines-tema');
+        if (t === 'claro' || t === 'oscuro') document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap">
+
+  <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: { preflight: true },
+      theme: { extend: {
+        colors: {
+          fondo: 'var(--fondo)', tinta: 'var(--tinta)', 'tinta-suave': 'var(--tinta-suave)',
+          'tinta-tenue': 'var(--tinta-tenue)', 'tinta-debil': 'var(--tinta-debil)',
+          acento: 'var(--acento)', 'sobre-acento': 'var(--sobre-acento)',
+          sello: 'var(--sello)', 'sobre-sello': 'var(--sobre-sello)',
+          marca: 'var(--marca)', 'sobre-marca': 'var(--sobre-marca)', 'sobre-marca-texto': 'var(--sobre-marca-texto)',
+          error: 'var(--error)', ok: 'var(--ok)', info: 'var(--info)', linea: 'var(--linea)',
+          'superficie-suave': 'var(--superficie-suave)'
+        },
+        fontFamily: {
+          display: ['Bebas Neue', 'sans-serif'],
+          sans: ['Roboto', 'system-ui', 'sans-serif'],
+          mono: ['Roboto Mono', 'monospace']
+        },
+        borderRadius: { xl2: '28px' }
+      } }
+    };
+  </script>
+
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/componentes.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% block content %}{% endblock %}
+
+  <script src="{% static 'js/tema.js' %}" defer></script>
+  <script src="{% static 'js/logotipo-animado.js' %}" defer></script>
+  <script src="{% static 'js/bolsa-animada.js' %}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

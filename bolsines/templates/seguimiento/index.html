@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Seguimiento{% endblock %}
+{% block body_class %}pagina-app pagina-seguimiento{% endblock %}
+
+{% block content %}
+{# ── Mapa a pantalla completa ── #}
+<div id="mapa" class="mapa" role="region" aria-label="Mapa de bolsines en viaje">
+  {# Sin clave de Google Maps se usa este mapa de reemplazo (proyección simple lat/lng → pantalla). #}
+  <div class="mapa__reemplazo" data-mapa-reemplazo><div class="mapa__fondo bol-demo-mapa" data-mapa-fondo></div></div>
+</div>
+
+{% include "parciales/nav.html" %}
+
+{# ── Aviso de éxito (CU 30/31) ── #}
+<div class="aviso-zona" aria-live="polite">
+  <div role="status" class="bol-vidrio bol-aviso" data-aviso hidden>
+    <span class="bol-aviso__punto" aria-hidden="true"></span>
+    <span data-aviso-texto></span>
+    <button type="button" class="bol-aviso__cerrar" aria-label="Cerrar aviso" data-aviso-cerrar>{% include "iconos/cerrar.svg" %}</button>
+  </div>
+</div>
+
+{# ── Panel izquierdo (master) — en móvil es la hoja inferior ── #}
+<aside class="bol-vidrio panel panel--lista" data-hoja aria-label="Bolsines en viaje">
+  <button type="button" class="hoja__agarre" data-hoja-agarre aria-label="Expandir lista"><span></span></button>
+
+  <div class="panel__cabecera">
+    <h1 class="t-display-m">En viaje <span class="text-acento" data-contador>00</span></h1>
+    <p class="t-cuerpo-s text-tinta-tenue mt-1">Bolsines enviados desde {{ cm_nombre }} · actualizado {{ actualizado }}</p>
+  </div>
+
+  <div class="panel__filtros" data-filtros>
+    <div class="bol-campo">
+      <label for="precinto" class="sr-only">Buscar por precinto</label>
+      <span class="bol-campo__caja con-icono">
+        <span class="bol-campo__icono">{% include "iconos/buscar.svg" %}</span>
+        <input id="precinto" type="search" placeholder="Buscar por precinto" autocomplete="off" data-buscador>
+      </span>
+    </div>
+    <div class="chips" role="group" aria-label="Filtrar por CM destino" data-chips>
+      <button type="button" aria-pressed="true" class="bol-chip is-activo" data-chip="">Todas</button>
+      {% for d in destinos %}<button type="button" aria-pressed="false" class="bol-chip" data-chip="{{ d }}">{{ d }}</button>{% endfor %}
+    </div>
+  </div>
+
+  <div class="panel__lista" data-lista role="list"></div>
+
+  {# Estados del panel #}
+  <div class="estado" data-estado="cargando" hidden>
+    <div data-bolsa-animada data-color="var(--acento)" style="width:180px;height:112px"></div>
+    <p class="t-titulo">Buscando tus bolsines…</p>
+  </div>
+  <div class="estado" data-estado="vacio" hidden>
+    <span class="estado__bolsa text-acento">{% include "logos/bolsines-bolsa-de-pie.svg" %}</span>
+    <p class="t-display-s">No hay bolsines en viaje</p>
+    <p class="t-cuerpo-s text-tinta-tenue">Cuando envíes uno, lo vas a ver acá.</p>
+  </div>
+  <div class="estado" data-estado="sin-resultados" hidden>
+    <span class="estado__bolsa text-tinta-tenue">{% include "logos/bolsines-bolsa-de-pie.svg" %}</span>
+    <p class="t-display-s">Ese bolsín no está acá</p>
+    <p class="t-cuerpo-s text-tinta-tenue">Revisá el precinto o probá con otra CM destino.</p>
+    <button type="button" class="bol-boton bol-boton--secundario" data-limpiar>Limpiar filtros</button>
+  </div>
+
+  {# Detalle dentro de la hoja (solo móvil) #}
+  <div class="panel__detalle-movil" data-detalle-movil hidden></div>
+</aside>
+
+{# ── Panel derecho (detail) ── #}
+<aside class="bol-vidrio panel panel--detalle" data-detalle aria-label="Detalle del bolsín" aria-live="polite" hidden></aside>
+
+{# ── Zoom ── #}
+<div class="bol-vidrio zoom" role="group" aria-label="Zoom del mapa">
+  <button type="button" class="bol-boton-icono" aria-label="Alejar" title="Alejar" data-zoom="-1">{% include "iconos/menos.svg" %}</button>
+  <button type="button" class="bol-boton-icono" aria-label="Centrar en mis bolsines" title="Centrar" data-zoom="0">{% include "iconos/centrar.svg" %}</button>
+  <button type="button" class="bol-boton-icono" aria-label="Acercar" title="Acercar" data-zoom="1">{% include "iconos/mas.svg" %}</button>
+</div>
+
+{# ── Diálogo de confirmación (paso 8 del CU 36 → CU 30) ── #}
+<div class="bol-velo velo-fijo" data-velo hidden>
+  <div class="bol-vidrio bol-dialogo" role="dialog" aria-modal="true" aria-labelledby="dialogo-titulo" aria-describedby="dialogo-texto">
+    <h2 id="dialogo-titulo" class="bol-dialogo__titulo">¿Le avisamos dónde está?</h2>
+    <p id="dialogo-texto" class="t-cuerpo text-tinta-suave" data-dialogo-texto></p>
+    <dl class="dialogo__resumen" data-dialogo-resumen></dl>
+    <div class="bol-dialogo__acciones">
+      <button type="button" class="bol-boton bol-boton--secundario" data-dialogo-no>No, gracias</button>
+      <button type="button" class="bol-boton bol-boton--primario" data-dialogo-si>{% include "iconos/correo.svg" %}<span>Enviar correo</span></button>
+    </div>
+  </div>
+</div>
+
+{# ── Plantillas de componentes (marcado de componentes.html) ── #}
+<template id="tpl-item">
+  <button type="button" role="listitem" aria-pressed="false" class="bol-item">
+    <span class="bol-item__icono" data-icono-ok>{% include "iconos/camioncito.svg" %}</span>
+    <span class="bol-item__icono" data-icono-error hidden>{% include "iconos/bolsa-alerta.svg" %}</span>
+    <span class="bol-item__cuerpo">
+      <span class="bol-item__fila"><span class="bol-item__nro" data-nro></span><span class="bol-item__hace" data-hace></span></span>
+      <span class="bol-item__destino" data-destino></span>
+      <span class="bol-item__precinto" data-precinto></span>
+    </span>
+  </button>
+</template>
+
+<template id="tpl-detalle">
+  <div class="detalle">
+    <button type="button" class="bol-boton-icono detalle__cerrar" aria-label="Cerrar detalle" data-cerrar-detalle>{% include "iconos/cerrar.svg" %}</button>
+    <div class="detalle__cinta"><div aria-hidden="true" class="bol-cinta" data-cinta></div></div>
+    <p class="t-etiqueta text-tinta-tenue mt-6">ESTADO: ENVIADO</p>
+    <p class="t-display-l mt-2" data-nro></p>
+    <p class="t-dato text-tinta-suave mt-1">Precinto <span data-precinto></span></p>
+
+    <div class="bol-trayecto mt-6" data-trayecto>
+      <div class="bol-trayecto__nombres"><span data-origen></span><span data-destino-ciudad></span></div>
+      <div class="bol-trayecto__pista" role="img" data-pista>
+        <span class="bol-trayecto__linea"></span><span class="bol-trayecto__hecho" data-hecho></span>
+        <span class="bol-trayecto__origen"></span><span class="bol-trayecto__destino"></span>
+        <span class="bol-trayecto__marca" data-marca>{% include "iconos/camioncito.svg" %}</span>
+      </div>
+    </div>
+
+    <div data-con-senal>
+      <div class="detalle__grilla mt-6">
+        <div><p class="t-etiqueta text-tinta-tenue">LATITUD</p><p class="t-dato" data-lat></p></div>
+        <div><p class="t-etiqueta text-tinta-tenue">LONGITUD</p><p class="t-dato" data-lng></p></div>
+      </div>
+      <p class="t-cuerpo-s text-tinta-tenue mt-3">Última señal <span data-senal></span></p>
+    </div>
+
+    <div class="bol-alerta mt-6" role="alert" data-sin-senal hidden>
+      <strong class="bol-alerta__titulo">El GPS no contesta</strong>
+      <span class="bol-alerta__texto" data-alerta-texto></span>
+      <button type="button" class="bol-boton bol-boton--peligro" data-reintentar>{% include "iconos/recargar.svg" %}<span>Reintentar</span></button>
+    </div>
+
+    <div class="detalle__grilla detalle__grilla--3 mt-6">
+      <div><p class="t-etiqueta text-tinta-tenue">PESO</p><p class="t-display-s" data-peso></p></div>
+      <div><p class="t-etiqueta text-tinta-tenue">REMITOS</p><p class="t-display-s" data-remitos></p></div>
+      <div><p class="t-etiqueta text-tinta-tenue">SALIÓ</p><p class="t-display-s" data-salio></p></div>
+    </div>
+    <p class="t-cuerpo-s text-tinta-tenue mt-3">GPS Tracker <span data-gps></span></p>
+
+    <div class="detalle__acciones">
+      <button type="button" class="bol-boton bol-boton--primario bol-boton--ancho" data-avisar>{% include "iconos/correo.svg" %}<span>Avisarle al gerente de destino</span></button>
+      <button type="button" class="bol-boton bol-boton--fantasma">Ver historial de estados</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-marcador">
+  <button type="button" class="bol-marcador">{% include "iconos/camioncito.svg" %}</button>
+</template>
+
+{{ datos|json_script:"datos-seguimiento" }}
+<script>
+  window.BOLSINES_CONFIG = {
+    mapsKey: "{{ google_maps_key|escapejs }}",
+    mapId: "{{ google_maps_map_id|escapejs }}",
+    origenCiudad: "{{ cm_ciudad|escapejs }}",
+    cmNombre: "{{ cm_nombre|escapejs }}"
+  };
+</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/seguimiento.js' %}" defer></script>
+{% endblock %}

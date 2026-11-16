@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="es" data-theme="oscuro"><head><meta charset="utf-8"><title>Bolsines · animaciones</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>body{margin:0;padding:40px;background:var(--fondo);color:var(--tinta);font-family:Roboto,system-ui,sans-serif;display:grid;gap:40px}
+.panel{background:var(--marca);border-radius:28px;padding:24px;display:flex;justify-content:center}</style></head>
+<body>
+<h1 style="margin:0">Animaciones de Bolsines</h1>
+<p>Logotipo (se reproduce al cargar, cada 10 s hasta 3 veces y al pasar el mouse):</p>
+<span data-logo-animado data-color="var(--tinta)" style="display:inline-block;height:40px"></span>
+<p>Bolsa en loop (panel del login / cargando):</p>
+<div class="panel"><div data-bolsa-animada data-color="var(--sobre-marca)" style="width:620px;height:384px"></div></div>
+<script src="logotipo-animado.js"></script>
+<script src="bolsa-animada.js"></script>
+</body></html>

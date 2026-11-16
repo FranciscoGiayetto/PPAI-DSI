@@ -107,6 +107,30 @@ python manage.py runserver
 
 Abrir el navegador en: **http://localhost:8000**
 
+### Ver la interfaz rápido (Windows, sin el GPS)
+
+```powershell
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_db
+python manage.py runserver --sin-gps
+```
+
+Entrar a http://localhost:8000 con **legajo `40211`** y **contraseña `bolsines2026`** (Encargada de Bolsines de CMJ Córdoba).
+
+| URL | Qué muestra |
+|---|---|
+| `/login/` | Login con el panel de marca y la bolsa animada |
+| `/seguimiento/` | CU 36: mapa, lista, detalle, diálogo (el bolsín 1041 muestra el flujo A3) |
+| `/seguimiento/?demo=vacio` | Flujo A1: no hay bolsines en viaje |
+| `/seguimiento/?demo=cargando` | Estado "Buscando tus bolsines…" |
+| `/dashboard/` | Inicio |
+
+Las ubicaciones son **simuladas** hasta que estén el Gestor y los Adapters. Sin `GOOGLE_MAPS_API_KEY` se ve un mapa de reemplazo.
+Las decisiones de la interfaz están en [`docs/decisiones-esteticas.md`](docs/decisiones-esteticas.md).
+
 ---
 
 ## Variables de entorno (`.env`)
