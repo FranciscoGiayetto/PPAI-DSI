@@ -335,33 +335,18 @@
       wheelPxPerZoomLevel: 90
     });
 
-    // Esri (gratis, sin API key): una capa de teselas por tema, en vez de una sola capa de
-    // calles invertida con filtro CSS. Un filtro sobre todo el panel de teselas se tiene que
-    // recalcular en cada frame de la animación de zoom —con decenas de teselas visibles eso es
-    // el cuello de botella que lo pone trabado—, así que la solución es no filtrar nada: cada
-    // tema carga su propia cartografía ya oscura o clara.
-    var opcionesTiles = {
-      maxZoom: 19, crossOrigin: true, updateWhenZooming: false, keepBuffer: 3
-    };
-    var tileClaro = L.layerGroup([
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-        Object.assign({ attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap' }, opcionesTiles))
-    ]);
-    var tileOscuro = L.layerGroup([
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-        Object.assign({ maxZoom: 16, attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin' }, opcionesTiles)),
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
-        Object.assign({ maxZoom: 16 }, opcionesTiles))
-    ]);
-    var tileActual = null;
+    // Como antes del commit f7da23d: Esri World Street Map (sin API key).
+    // En oscuro se invierte con .mapa--oscuro (solo el panel de teselas).
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      updateWhenZooming: false,
+      keepBuffer: 3,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap'
+    }).addTo(lfMap);
 
     function actualizarTiles() {
       var oscuro = document.documentElement.getAttribute('data-theme') !== 'claro';
-      var siguiente = oscuro ? tileOscuro : tileClaro;
-      if (siguiente === tileActual) return;
-      if (tileActual) lfMap.removeLayer(tileActual);
-      siguiente.addTo(lfMap);
-      tileActual = siguiente;
+      div.classList.toggle('mapa--oscuro', oscuro);
     }
     actualizarTiles();
     document.addEventListener('bolsines:tema', actualizarTiles);

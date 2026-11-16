@@ -11,6 +11,10 @@
     background: var(--fondo) !important;
     font-family: var(--font-sans);
   }
+  /* Tema oscuro: mismo Street Map invertido (como antes de f7da23d). */
+  .mapa--oscuro .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
+  }
   .leaflet-control-attribution {
     background: var(--superficie-vidrio) !important;
     -webkit-backdrop-filter: blur(8px);
