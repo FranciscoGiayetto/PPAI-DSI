@@ -89,9 +89,17 @@ GPS_API_KEYS = {
 }
 GPS_MODEL_DEFAULT = os.getenv('GPS_MODEL_DEFAULT', 'XTR4500L')
 
-# Correo (CU 30). Por defecto sale por consola; configurar SMTP en .env para envío real.
+# Correo (CU 30). Por defecto sale por consola; configurar SMTP (Gmail) en .env para envío real.
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'bolsines@sistema.local')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')  # contraseña de aplicación de Google
+EMAIL_TIMEOUT = 15
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'bolsines@sistema.local')
+# Modo prueba: si tiene valor, todos los correos van a esta casilla en lugar de a los gerentes reales.
+EMAIL_REDIRIGIR_A = os.getenv('EMAIL_REDIRIGIR_A', '').strip()
 
 # Google Maps
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')

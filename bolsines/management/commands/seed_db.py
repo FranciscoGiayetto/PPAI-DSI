@@ -24,9 +24,9 @@ BOLSINES = [
     (120, 'CM-ROS-02', Bolsin.ESTADO_CERRADO, 1200, 1),   # no se muestra: no está Enviado
 ]
 # Gerentes de CM destino (reciben el correo del CU 30).
-GERENTES = [('gcm-ros', '50101', 'CM-ROS-02', 'gerente.rosario@bolsines.test'),
-            ('gcm-mdz', '50102', 'CM-MDZ-03', 'gerente.mendoza@bolsines.test'),
-            ('gcm-ba', '50103', 'CM-BA-01', 'gerente.caba@bolsines.test')]
+GERENTES = [('gcm-ros', '50101', 'CM-ROS-02', 'abdalavaleria@gmail.com'),
+            ('gcm-mdz', '50102', 'CM-MDZ-03', 'mateo.crespo100@gmail.com'),
+            ('gcm-ba', '50103', 'CM-BA-01', 'maurobastasiniprof@gmail.com')]
 
 class Command(BaseCommand):
     help = 'Carga datos de prueba (usuario: legajo 40211 / contraseña bolsines2026).'
@@ -46,7 +46,8 @@ class Command(BaseCommand):
             'legajo': '40211', 'rol': Empleado.ROL_ENCARGADO_BOLSINES, 'cm_asignada': cms['CM-CBA-01']})
 
         for username, legajo, cm, mail in GERENTES:
-            g, _ = User.objects.get_or_create(username=username, defaults={'first_name': 'Gerente', 'last_name': cm, 'email': mail})
+            g, _ = User.objects.get_or_create(username=username, defaults={'first_name': 'Gerente', 'last_name': cm})
+            g.email = mail
             g.set_password('bolsines2026'); g.save()
             Empleado.objects.update_or_create(user=g, defaults={'legajo': legajo, 'rol': Empleado.ROL_GERENTE_CM, 'cm_asignada': cms[cm]})
 

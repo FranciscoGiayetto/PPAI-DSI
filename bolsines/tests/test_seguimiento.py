@@ -65,6 +65,7 @@ class InterfazGPSTests(TestCase):
         self.assertIsInstance(InterfazGPS('GEOPULSEMTR900')._crear_adaptador(), AdaptadorGPSGeoPulseMTR900)
 
 
+@override_settings(EMAIL_REDIRIGIR_A='')
 class BaseDatos(TestCase):
     def setUp(self):
         self.orig = ComisionMedica.objects.create(codigo='CM-CBA-01', nombre='Comisión Médica Jurisdiccional Córdoba', tipo='CMJ')
@@ -116,7 +117,29 @@ class GestorTests(BaseDatos):
         g = GestorSeguimientoBolsines(self.eb, self.interfaz_falsa(ESPERADO))
         g.nuevo_seguimiento_bolsin()
         self.assertTrue(g.tomar_confirmacion_enviar_correo(101))
-        self.assertEqual(mail.outbox[0].to, ['g@test.com'])
+        correo = mail.outbox[0]
+        self.assertEqual(correo.to, ['g@test.com'])
+        html = correo.alternatives[0][0]
+        self.assertEqual(correo.alternatives[0][1], 'text/html')
+        # número de bolsín, fecha/hora, coordenadas y CM destino (ERS, CU 36 paso 11)
+        for dato in ('101', '-31.4201', '-64.1888', '2026-03-07T12:30:00', self.dest.nombre):
+            self.assertIn(dato, html)
+            self.assertIn(dato, correo.body)
+        # wordmark + camioncito de marca, embebidos inline (cid)
+        self.assertEqual(correo.mixed_subtype, 'related')
+        cids = {a.get('Content-ID') for a in correo.attachments}
+        self.assertEqual(cids, {'<bolsines-wordmark>', '<bolsines-camioncito>'})
+
+    @override_settings(EMAIL_REDIRIGIR_A='prueba@test.com')
+    def test_cu30_modo_prueba_desvia_correo(self):
+        g = GestorSeguimientoBolsines(self.eb, self.interfaz_falsa(ESPERADO))
+        g.nuevo_seguimiento_bolsin()
+        self.assertTrue(g.tomar_confirmacion_enviar_correo(101))
+        correo = mail.outbox[0]
+        self.assertEqual(correo.to, ['prueba@test.com'])
+        self.assertIn('[PRUEBA]', correo.subject)
+        self.assertIn('g@test.com', correo.alternatives[0][0])
+        self.assertIn('g@test.com', correo.body)
 
 
 class VistaTests(BaseDatos):

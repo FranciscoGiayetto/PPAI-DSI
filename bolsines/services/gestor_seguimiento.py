@@ -8,12 +8,23 @@ La vista nunca habla con el GPS: siempre pasa por el Gestor.
 from __future__ import annotations
 
 from datetime import datetime
+from email.mime.image import MIMEImage
+from pathlib import Path
 
-from django.core.mail import send_mail
+from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.html import strip_tags
 
 from ..gps import GPSTrackerError, InterfazGPS
 from ..models import Bolsin, ComisionMedica, Empleado
+
+# Imágenes de marca embebidas (cid) en el correo del CU 30. Generadas desde los SVG del design system
+# (docs/design-system/logos, .../iconos) con bolsines/static/img/correo/generar_assets_correo.py.
+_IMG_CORREO = Path(__file__).resolve().parent.parent / 'static' / 'img' / 'correo'
+_CID_WORDMARK = 'bolsines-wordmark'
+_CID_CAMIONCITO = 'bolsines-camioncito'
 
 # Coordenadas aproximadas de cada CM (el modelo de dominio no guarda ubicación); solo para dibujar el destino.
 COORDENADAS_CM = {
@@ -146,10 +157,25 @@ class GestorSeguimientoBolsines:
         destinatarios = [g.user.email for g in gerentes if g.user.email]
         if not destinatarios:
             return False
-        send_mail(
-            subject=f'Ubicación del bolsín N.º {bolsin.nro_bolsin}',
-            message=(f'El bolsín N.º {bolsin.nro_bolsin} (precinto {bolsin.nro_precinto}) enviado desde '
-                     f'{bolsin.cm_origen.nombre} está en latitud {fila[1]}, longitud {fila[2]} '
-                     f'(última actualización: {fila[3]}).'),
-            from_email=None, recipient_list=destinatarios)
+        destinatarios_reales = ', '.join(destinatarios)
+        en_prueba = bool(settings.EMAIL_REDIRIGIR_A)
+        asunto = f'Ubicación del bolsín N.º {bolsin.nro_bolsin}'
+        if en_prueba:  # modo prueba: no molestar a los gerentes reales
+            asunto = f'[PRUEBA] {asunto}'
+            destinatarios = [settings.EMAIL_REDIRIGIR_A]
+        contexto = {
+            'bolsin': bolsin, 'lat': fila[1], 'lng': fila[2], 'fecha_hora': fila[3],
+            'prueba': en_prueba, 'destinatarios_reales': destinatarios_reales,
+            'cid_wordmark': _CID_WORDMARK, 'cid_camioncito': _CID_CAMIONCITO,
+        }
+        html = render_to_string('correo/ubicacion_bolsin.html', contexto)
+        correo = EmailMultiAlternatives(subject=asunto, body=strip_tags(html), from_email=None, to=destinatarios)
+        correo.attach_alternative(html, 'text/html')
+        correo.mixed_subtype = 'related'  # permite imágenes inline (cid) junto al html
+        for archivo, cid in (('wordmark.png', _CID_WORDMARK), ('camioncito.png', _CID_CAMIONCITO)):
+            imagen = MIMEImage((_IMG_CORREO / archivo).read_bytes())
+            imagen.add_header('Content-ID', f'<{cid}>')
+            imagen.add_header('Content-Disposition', 'inline', filename=archivo)
+            correo.attach(imagen)
+        correo.send()
         return True
