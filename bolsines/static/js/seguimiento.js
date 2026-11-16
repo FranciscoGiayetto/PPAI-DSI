@@ -280,6 +280,25 @@
     $('[data-buscador]').addEventListener('focus', function () { if (movil.matches) expandir(true); });
   })();
 
+  /* ───── colapsar panel (escritorio) ───── */
+  (function () {
+    var boton = $('[data-panel-colapsar]');
+    if (!boton) return;
+    var CLAVE = 'bolsines-lista-colapsada';
+    function fijar(colapsado) {
+      hoja.classList.toggle('is-colapsada', colapsado);
+      boton.setAttribute('aria-expanded', String(!colapsado));
+      var etiqueta = colapsado ? 'Expandir lista' : 'Colapsar lista';
+      boton.setAttribute('aria-label', etiqueta);
+      boton.setAttribute('title', etiqueta);
+      try { localStorage.setItem(CLAVE, colapsado ? '1' : '0'); } catch (e) {}
+    }
+    boton.addEventListener('click', function () { fijar(!hoja.classList.contains('is-colapsada')); });
+    var guardado = null;
+    try { guardado = localStorage.getItem(CLAVE); } catch (e) {}
+    if (guardado === '1') fijar(true);
+  })();
+
   /* ───── mapa ───── */
   var mapa = null;
   if (cfg.mapsKey) {
@@ -307,19 +326,42 @@
       center: [origen.lat, origen.lng],
       zoom: 6,
       zoomControl: false,
-      attributionControl: true
+      attributionControl: true,
+      // Zoom más fluido: no pedir/renderizar teselas nuevas mientras la animación de zoom está
+      // en curso (se piden al terminar) y mantener un colchón de teselas ya descargadas alrededor
+      // de la vista para que paneos/zooms cercanos no esperen red.
+      zoomAnimation: true,
+      markerZoomAnimation: true,
+      wheelPxPerZoomLevel: 90
     });
 
-    // ESRI World Street Map: calles, rutas y nombres hasta zoom 19, sin API key.
-    // No hay versión oscura con ese detalle, así que en tema oscuro se invierte con un filtro CSS (.mapa--oscuro).
-    var tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap'
-    }).addTo(lfMap);
+    // Esri (gratis, sin API key): una capa de teselas por tema, en vez de una sola capa de
+    // calles invertida con filtro CSS. Un filtro sobre todo el panel de teselas se tiene que
+    // recalcular en cada frame de la animación de zoom —con decenas de teselas visibles eso es
+    // el cuello de botella que lo pone trabado—, así que la solución es no filtrar nada: cada
+    // tema carga su propia cartografía ya oscura o clara.
+    var opcionesTiles = {
+      maxZoom: 19, crossOrigin: true, updateWhenZooming: false, keepBuffer: 3
+    };
+    var tileClaro = L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+        Object.assign({ attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap' }, opcionesTiles))
+    ]);
+    var tileOscuro = L.layerGroup([
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        Object.assign({ maxZoom: 16, attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin' }, opcionesTiles)),
+      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        Object.assign({ maxZoom: 16 }, opcionesTiles))
+    ]);
+    var tileActual = null;
 
     function actualizarTiles() {
       var oscuro = document.documentElement.getAttribute('data-theme') !== 'claro';
-      div.classList.toggle('mapa--oscuro', oscuro);
+      var siguiente = oscuro ? tileOscuro : tileClaro;
+      if (siguiente === tileActual) return;
+      if (tileActual) lfMap.removeLayer(tileActual);
+      siguiente.addTo(lfMap);
+      tileActual = siguiente;
     }
     actualizarTiles();
     document.addEventListener('bolsines:tema', actualizarTiles);

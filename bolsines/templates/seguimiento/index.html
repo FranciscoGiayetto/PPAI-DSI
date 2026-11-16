@@ -25,9 +25,9 @@
     color: var(--acento) !important;
     text-decoration: none;
   }
-  .mapa--oscuro .leaflet-tile-pane {
-    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
-  }
+  /* El tema oscuro usa una capa de teselas oscura nativa (Esri World Dark Gray Canvas), no un
+     filtro CSS: invertir/filtrar el panel de teselas en cada frame de zoom es carísimo (recompone
+     todas las teselas visibles) y es la causa principal de que el zoom se sienta trabado. */
   .mapa__pin-leaflet {
     background: transparent !important;
     border: none !important;
@@ -229,8 +229,13 @@
   <button type="button" class="hoja__agarre" data-hoja-agarre aria-label="Expandir lista"><span></span></button>
 
   <div class="panel__cabecera">
-    <h1 class="t-display-m">En viaje <span class="text-acento" data-contador>00</span></h1>
-    <p class="t-cuerpo-s text-tinta-tenue mt-1">Bolsines enviados desde {{ cm_nombre }} · actualizado {{ actualizado }}</p>
+    <div class="panel__cabecera-fila">
+      <h1 class="t-display-m panel__titulo"><span class="panel__titulo-texto">En viaje</span> <span class="text-acento" data-contador>00</span></h1>
+      <button type="button" class="bol-boton-icono panel__colapsar" data-panel-colapsar aria-expanded="true" aria-label="Colapsar lista" title="Colapsar lista">
+        {% include "iconos/flecha.svg" %}
+      </button>
+    </div>
+    <p class="t-cuerpo-s text-tinta-tenue mt-1" data-panel-subtitulo>Bolsines enviados desde {{ cm_nombre }} · actualizado {{ actualizado }}</p>
   </div>
 
   <div class="panel__filtros" data-filtros>

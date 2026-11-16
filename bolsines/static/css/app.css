@@ -120,6 +120,7 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font-family: va
 .panel--lista { left: var(--space-4); width: 360px; }
 .panel--detalle { right: var(--space-4); width: 390px; overflow-y: auto; }
 .panel__cabecera { padding: var(--space-6) var(--space-6) var(--space-3); }
+.panel__cabecera-fila { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-2); }
 .panel__filtros { padding: 0 var(--space-6) var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .panel__lista { flex: 1 1 auto; overflow-y: auto; padding: 0 var(--space-3) var(--space-3); }
@@ -129,6 +130,33 @@ body { margin: 0; background: var(--fondo); color: var(--tinta); font-family: va
 .estado__bolsa { width: 72px; display: block; }
 .estado__bolsa svg { width: 100%; height: auto; }
 .hoja__agarre { display: none; }
+/* Colapsar el panel en escritorio: se angosta a una pestaña vertical (en móvil ese rol lo cumple
+   la hoja__agarre). El "En viaje" queda vertical y el contador se mantiene como está. */
+.panel__colapsar { display: none; flex: none; margin-top: -4px; }
+.panel__colapsar .bol-icono { transition: transform .25s cubic-bezier(.7,0,.2,1); transform: rotate(180deg); }
+@media (min-width: 768px) {
+  .panel__colapsar { display: inline-flex; }
+  .panel--lista { transition: width .25s cubic-bezier(.7,0,.2,1); }
+  .panel--lista.is-colapsada { width: 84px; }
+  .panel--lista.is-colapsada .panel__filtros,
+  .panel--lista.is-colapsada .panel__lista,
+  .panel--lista.is-colapsada .estado,
+  .panel--lista.is-colapsada [data-panel-subtitulo] { display: none; }
+  .panel--lista.is-colapsada .panel__cabecera { height: 100%; padding: var(--space-4) 0; }
+  .panel--lista.is-colapsada .panel__cabecera-fila {
+    flex-direction: column; align-items: center; justify-content: flex-start;
+    height: 100%; gap: var(--space-5);
+  }
+  .panel--lista.is-colapsada .panel__colapsar { order: -1; }
+  .panel--lista.is-colapsada .panel__colapsar .bol-icono { transform: rotate(0deg); }
+  .panel--lista.is-colapsada .panel__titulo {
+    display: flex; flex-direction: column; align-items: center; gap: var(--space-3);
+  }
+  .panel--lista.is-colapsada .panel__titulo .text-acento { order: -1; }
+  .panel--lista.is-colapsada .panel__titulo-texto {
+    writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap;
+  }
+}
 
 .detalle { position: relative; padding: var(--space-6); padding-top: 64px; display: flex; flex-direction: column; min-height: 100%; }
 .detalle__cerrar { position: absolute; top: var(--space-2); right: var(--space-2); z-index: 2; width: 40px; height: 40px; }
