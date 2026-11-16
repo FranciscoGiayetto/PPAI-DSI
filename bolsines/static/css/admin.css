@@ -1,0 +1,258 @@
+/* Admin Bolsines — mismo lenguaje visual que la app (tokens.css). */
+
+html[data-theme],
+:root {
+  --primary: var(--acento);
+  --secondary: var(--azul-noche);
+  --accent: var(--amarillo);
+  --primary-fg: var(--sobre-acento);
+  --body-fg: var(--tinta);
+  --body-bg: var(--fondo);
+  --body-quiet-color: var(--tinta-tenue);
+  --body-medium-color: var(--tinta-suave);
+  --header-color: var(--sobre-acento);
+  --header-branding-color: var(--sobre-acento);
+  --header-bg: color-mix(in srgb, var(--fondo) 78%, transparent);
+  --header-link-color: var(--tinta);
+  --breadcrumbs-fg: var(--tinta-suave);
+  --breadcrumbs-link-fg: var(--tinta);
+  --breadcrumbs-bg: transparent;
+  --link-fg: var(--acento);
+  --link-hover-color: var(--amarillo);
+  --link-selected-fg: var(--amarillo);
+  --hairline-color: var(--linea);
+  --border-color: var(--linea);
+  --darkened-bg: color-mix(in srgb, var(--fondo) 88%, #000 12%);
+  --selected-bg: color-mix(in srgb, var(--acento) 16%, transparent);
+  --selected-row: color-mix(in srgb, var(--acento) 12%, transparent);
+  --button-bg: var(--acento);
+  --button-hover-bg: color-mix(in srgb, var(--acento) 85%, #000);
+  --button-fg: var(--sobre-acento);
+  --default-button-bg: var(--acento);
+  --default-button-hover-bg: color-mix(in srgb, var(--acento) 85%, #000);
+  --close-button-bg: var(--superficie-suave);
+  --close-button-hover-bg: color-mix(in srgb, var(--tinta) 12%, transparent);
+  --delete-button-bg: var(--error);
+  --delete-button-hover-bg: color-mix(in srgb, var(--error) 85%, #000);
+  --object-tools-bg: var(--superficie-suave);
+  --object-tools-hover-bg: color-mix(in srgb, var(--acento) 18%, transparent);
+  --message-success-bg: var(--ok-fondo);
+  --message-warning-bg: color-mix(in srgb, var(--amarillo) 18%, transparent);
+  --message-error-bg: var(--error-fondo);
+  --dark-theme: 0;
+  color-scheme: dark;
+}
+
+html[data-theme="claro"] {
+  color-scheme: light;
+}
+
+html, body {
+  background: var(--fondo) !important;
+  color: var(--tinta) !important;
+  font-family: var(--font-sans) !important;
+}
+
+a:link, a:visited { color: var(--link-fg); }
+a:hover { color: var(--link-hover-color); }
+
+#header {
+  background: var(--header-bg) !important;
+  -webkit-backdrop-filter: blur(var(--vidrio-blur)) saturate(var(--vidrio-saturacion));
+  backdrop-filter: blur(var(--vidrio-blur)) saturate(var(--vidrio-saturacion));
+  border-bottom: 1px solid var(--linea);
+  color: var(--tinta) !important;
+  box-shadow: none;
+}
+
+#branding h1, #branding h1 a:link, #branding h1 a:visited,
+#site-name a {
+  color: var(--tinta) !important;
+  font-family: var(--font-display) !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#user-tools, #user-tools a, #user-tools a:link, #user-tools a:visited {
+  color: var(--tinta-suave) !important;
+  font-weight: 500;
+}
+
+#user-tools a:hover { color: var(--acento) !important; }
+
+div.breadcrumbs {
+  background: transparent !important;
+  color: var(--tinta-tenue) !important;
+  border-bottom: 1px solid var(--linea);
+  padding: 12px 40px;
+}
+
+div.breadcrumbs a { color: var(--tinta) !important; }
+
+#content {
+  padding: 24px 40px;
+}
+
+#content h1, .main h1, .content h1 {
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--tinta) !important;
+}
+
+.module, #changelist, .dashboard #content-main .module,
+#changelist .results, .inline-group, .form-row,
+.selector .selector-available, .selector .selector-chosen {
+  background: var(--superficie-vidrio) !important;
+  border: 1px solid var(--linea) !important;
+  border-radius: var(--radius-l) !important;
+  box-shadow: var(--sombra-vidrio);
+  color: var(--tinta);
+}
+
+.module h2, .module caption, .inline-group h2,
+#changelist-filter h2, .filtered .module h2 {
+  background: transparent !important;
+  color: var(--tinta) !important;
+  font-family: var(--font-display) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--linea);
+}
+
+#changelist-filter {
+  background: var(--superficie-vidrio) !important;
+  border: 1px solid var(--linea) !important;
+  border-radius: var(--radius-l) !important;
+}
+
+#changelist table thead th,
+.change-list .filtered table thead th {
+  background: color-mix(in srgb, var(--fondo) 70%, transparent) !important;
+  color: var(--tinta-tenue) !important;
+  border-bottom: 1px solid var(--linea) !important;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#changelist table tbody tr, .change-list table tbody tr {
+  background: transparent !important;
+}
+
+#changelist table tbody tr:nth-child(odd),
+.change-list table tbody tr:nth-child(odd) {
+  background: color-mix(in srgb, var(--tinta) 3%, transparent) !important;
+}
+
+#changelist table tbody tr:hover,
+.change-list table tbody tr:hover {
+  background: var(--selected-bg) !important;
+}
+
+td, th {
+  border-bottom-color: var(--linea) !important;
+  color: var(--tinta);
+}
+
+input, textarea, select, .vTextField, .vLargeTextField, .vURLField,
+.form-row input, .form-row textarea, .form-row select {
+  background: color-mix(in srgb, var(--fondo) 65%, transparent) !important;
+  border: 1px solid var(--linea) !important;
+  border-radius: var(--radius-m) !important;
+  color: var(--tinta) !important;
+  padding: 8px 12px !important;
+  font-family: var(--font-sans) !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: 2px solid var(--acento) !important;
+  outline-offset: 1px;
+  border-color: var(--acento) !important;
+}
+
+.button, input[type=submit], input[type=button], .submit-row input,
+a.button, .object-tools a {
+  background: var(--acento) !important;
+  color: var(--sobre-acento) !important;
+  border: 0 !important;
+  border-radius: var(--radius-pill) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  text-transform: none;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover,
+a.button:hover, .object-tools a:hover {
+  background: color-mix(in srgb, var(--acento) 85%, #000) !important;
+  color: var(--sobre-acento) !important;
+}
+
+.deletelink, a.deletelink, .deletelink-box a {
+  background: var(--error) !important;
+  color: #fff !important;
+}
+
+.submit-row {
+  background: transparent !important;
+  border: 0 !important;
+  padding-left: 0 !important;
+}
+
+.object-tools {
+  margin-top: 0;
+}
+
+.messagelist li {
+  border-radius: var(--radius-m);
+  border: 1px solid var(--linea);
+}
+
+.messagelist li.success { background: var(--ok-fondo) !important; color: var(--ok) !important; }
+.messagelist li.error { background: var(--error-fondo) !important; color: var(--error) !important; }
+.messagelist li.warning { background: color-mix(in srgb, var(--amarillo) 18%, transparent) !important; color: var(--tinta) !important; }
+
+#nav-sidebar {
+  background: color-mix(in srgb, var(--fondo) 92%, #000) !important;
+  border-right: 1px solid var(--linea) !important;
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited,
+#nav-sidebar .current-model {
+  color: var(--acento) !important;
+}
+
+.login {
+  background: var(--fondo) !important;
+}
+
+.login #header {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.login #container {
+  background: var(--superficie-vidrio) !important;
+  border: 1px solid var(--linea) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--sombra-vidrio);
+  -webkit-backdrop-filter: blur(var(--vidrio-blur));
+  backdrop-filter: blur(var(--vidrio-blur));
+}
+
+.login #content { padding: 24px; }
+
+#footer { color: var(--tinta-debil); }
+
+/* Toggle tema del admin: forzamos tema oscuro Bolsines por defecto
+   y respetamos el data-theme del html si el usuario cambia. */
+html:not([data-theme="claro"]) {
+  --primary: var(--amarillo);
+  --primary-fg: var(--gris);
+}
