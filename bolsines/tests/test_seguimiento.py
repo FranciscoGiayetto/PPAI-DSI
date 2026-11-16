@@ -129,6 +129,9 @@ class GestorTests(BaseDatos):
         self.assertEqual(correo.mixed_subtype, 'related')
         cids = {a.get('Content-ID') for a in correo.attachments}
         self.assertEqual(cids, {'<bolsines-wordmark>', '<bolsines-camioncito>'})
+        # fuera de modo prueba no debe aparecer el aviso de desvío
+        self.assertNotIn('[Modo prueba]', html)
+        self.assertNotIn('[Modo prueba]', correo.body)
 
     @override_settings(EMAIL_REDIRIGIR_A='prueba@test.com')
     def test_cu30_modo_prueba_desvia_correo(self):
