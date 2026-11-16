@@ -55,7 +55,7 @@ Fecha: 16/11/2026.
 - Los paneles arrancan **debajo de la barra de navegación** (top 96 px) y no a alto completo: con la barra de navegación entera (CM, tema, avatar) no entran los tres en un ancho de 1440 px.
 
 ### Favicon y logo
-- **Favicon** (`static/img/favicon.svg`): el isotipo en `--azul` sobre un cuadrado redondeado `--amarillo`. Es un archivo estático, así que lleva los hex de la marca (no puede leer variables CSS).
+- **Favicon** (`static/img/favicon.svg`): la **bolsa de pie** (`logos/bolsines-bolsa-de-pie.svg`, el isotipo girado para que se lea como bolsa) en `--azul` sobre un cuadrado redondeado `--amarillo`. Es un archivo estático, así que lleva los hex de la marca (no puede leer variables CSS).
 - **Logo animado:** durante la animación la B salta por encima del `viewBox` y el script la recortaba (`overflow:hidden`). En `app.css` se pisa con `overflow: visible` para que no se corte la parte de arriba. Conviene corregirlo también en `docs/design-system/animaciones/logotipo-animado.js`.
 
 ### Zoom del mapa de reemplazo
