@@ -7,7 +7,12 @@ la publica el servidor GPS de la cátedra (`gps-api/`). No contienen lógica de 
 from __future__ import annotations
 
 import requests
-from django.conf import settings
+try:
+    from django.conf import settings
+except ImportError:
+    class _SettingsFallback:
+        GPS_API_BASE_URL = 'http://localhost:8080'
+    settings = _SettingsFallback()
 
 from .excepciones import GPSBolsinSinLocalizacion, GPSServicioNoDisponible
 

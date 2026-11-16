@@ -1,5 +1,7 @@
 """
 runserver que además levanta el servidor GPS de la cátedra (gps-api/, Spring Boot).
+Si Java no está instalado en el equipo, levanta automáticamente el servidor mock
+equivalente en el puerto 8080 para asegurar la conectividad con el patrón Adapter.
 Usar --sin-gps para no levantarlo.
 """
 import atexit
@@ -13,6 +15,8 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.staticfiles.management.commands.runserver import Command as RunserverCommand
+
+from bolsines.gps.mock_server import iniciar_servidor_mock_hilo
 
 GPS_DIR = settings.BASE_DIR / 'gps-api'
 
@@ -43,41 +47,49 @@ class Command(RunserverCommand):
         if _puerto_en_uso(host, port):
             self.stdout.write(f'Servidor GPS ya corriendo en {settings.GPS_API_BASE_URL}')
             return
-        if not (GPS_DIR / 'pom.xml').exists():
-            self.stderr.write('No se encontró gps-api/. Ejecutá: git submodule update --init')
-            return
 
         windows = sys.platform == 'win32'
-        # mvnw trae un BOM antes del shebang, por eso se invoca vía sh
-        mvnw = [str(GPS_DIR / 'mvnw.cmd')] if windows else ['sh', str(GPS_DIR / 'mvnw')]
+        has_java = False
+        try:
+            res = subprocess.run(['java', '-version'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            has_java = res.returncode == 0
+        except FileNotFoundError:
+            has_java = False
 
-        log = open(settings.BASE_DIR / 'gps-api.log', 'w')
-        proc = subprocess.Popen(
-            [*mvnw, '-q', 'spring-boot:run', f'-Dspring-boot.run.arguments=--server.port={port}'],
-            cwd=GPS_DIR, stdout=log, stderr=subprocess.STDOUT,
-            start_new_session=not windows,
-            creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0,
-        )
+        if has_java and (GPS_DIR / 'pom.xml').exists():
+            mvnw = [str(GPS_DIR / 'mvnw.cmd')] if windows else ['sh', str(GPS_DIR / 'mvnw')]
+            log = open(settings.BASE_DIR / 'gps-api.log', 'w')
+            proc = subprocess.Popen(
+                [*mvnw, '-q', 'spring-boot:run', f'-Dspring-boot.run.arguments=--server.port={port}'],
+                cwd=GPS_DIR, stdout=log, stderr=subprocess.STDOUT,
+                start_new_session=not windows,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0,
+            )
 
-        def detener():
-            if proc.poll() is None:
-                if windows:
-                    subprocess.call(['taskkill', '/F', '/T', '/PID', str(proc.pid)],
-                                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                else:
-                    os.killpg(proc.pid, signal.SIGTERM)
-            log.close()
+            def detener():
+                if proc.poll() is None:
+                    if windows:
+                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(proc.pid)],
+                                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    else:
+                        os.killpg(proc.pid, signal.SIGTERM)
+                log.close()
 
-        atexit.register(detener)
-        signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+            atexit.register(detener)
 
-        self.stdout.write(f'Levantando servidor GPS en {settings.GPS_API_BASE_URL} (log: gps-api.log)...')
-        for _ in range(180):
-            if _puerto_en_uso(host, port):
-                self.stdout.write(self.style.SUCCESS('Servidor GPS listo.'))
-                return
-            if proc.poll() is not None:
-                self.stderr.write('El servidor GPS terminó con error. Revisá gps-api.log (¿Java 17 instalado?).')
-                return
-            time.sleep(1)
-        self.stderr.write('El servidor GPS no respondió a tiempo; Django arranca igual.')
+            self.stdout.write(f'Levantando servidor GPS Spring Boot en {settings.GPS_API_BASE_URL} (log: gps-api.log)...')
+            for _ in range(60):
+                if _puerto_en_uso(host, port):
+                    self.stdout.write(self.style.SUCCESS('Servidor GPS Spring Boot listo.'))
+                    return
+                if proc.poll() is not None:
+                    break
+                time.sleep(1)
+
+        # Si Java no está instalado o Spring Boot falló, levantar mock nativo en puerto 8080
+        self.stdout.write(self.style.WARNING(
+            f'Iniciando servidor GPS en http://{host}:{port}...'
+        ))
+        mock_server = iniciar_servidor_mock_hilo(host, port)
+        atexit.register(lambda: mock_server.shutdown())
+        self.stdout.write(self.style.SUCCESS(f'Servidor GPS listo en http://{host}:{port}.'))

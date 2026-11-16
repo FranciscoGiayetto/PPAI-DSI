@@ -26,6 +26,27 @@
   function nro(n) { return 'N.º ' + n; }
   function hace(b) { return b.sin_senal ? 'sin señal' : 'hace ' + b.hace_min + ' min'; }
   function dosDigitos(n) { return (n < 10 ? '0' : '') + n; }
+  function texto(t) { var s = document.createElement('span'); s.textContent = t; return s.innerHTML; }
+  var ZOOM_BOLSIN = 13;
+
+  // Ruta por la red vial entre dos puntos [lat, lng] (servidor público de OSRM, sin clave).
+  // Devuelve una lista de [lat, lng]; las rutas ya pedidas se reutilizan.
+  var rutasCache = {};
+  function rutaPorCalles(a, b) {
+    var clave = a.join(',') + '|' + b.join(',');
+    if (!rutasCache[clave]) {
+      var url = 'https://router.project-osrm.org/route/v1/driving/' + a[1] + ',' + a[0] + ';' + b[1] + ',' + b[0] +
+                '?overview=full&geometries=geojson';
+      rutasCache[clave] = fetch(url)
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (j) {
+          if (!j.routes || !j.routes.length) throw new Error('sin ruta');
+          return j.routes[0].geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+        })
+        .catch(function (e) { delete rutasCache[clave]; throw e; });
+    }
+    return rutasCache[clave];
+  }
   function filtrados() {
     var q = estado.texto.trim().toLowerCase();
     return bolsines.filter(function (b) {
@@ -227,12 +248,168 @@
   })();
 
   /* ───── mapa ───── */
-  var mapa = crearMapaReemplazo();
-  if (cfg.mapsKey) cargarGoogleMaps();
+  var mapa = null;
+  if (cfg.mapsKey) {
+    mapa = crearMapaReemplazo();
+    cargarGoogleMaps();
+  } else if (window.L) {
+    mapa = crearLeafletMapa();
+  } else {
+    mapa = crearMapaReemplazo();
+  }
 
   document.querySelectorAll('[data-zoom]').forEach(function (btn) {
     btn.addEventListener('click', function () { mapa.zoom(parseInt(btn.getAttribute('data-zoom'), 10)); });
   });
+
+  // Mapa con OpenStreetMap / CartoDB vía Leaflet (Opción sin API Key, interactivo y profesional)
+  function crearLeafletMapa() {
+    var raiz = $('#mapa');
+    raiz.innerHTML = '';
+    var div = document.createElement('div');
+    div.style.cssText = 'position:absolute;inset:0;z-index:0;';
+    raiz.appendChild(div);
+
+    var lfMap = L.map(div, {
+      center: [origen.lat, origen.lng],
+      zoom: 6,
+      zoomControl: false,
+      attributionControl: true
+    });
+
+    // ESRI World Street Map: calles, rutas y nombres hasta zoom 19, sin API key.
+    // No hay versión oscura con ese detalle, así que en tema oscuro se invierte con un filtro CSS (.mapa--oscuro).
+    var tileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap'
+    }).addTo(lfMap);
+
+    function actualizarTiles() {
+      var oscuro = document.documentElement.getAttribute('data-theme') !== 'claro';
+      div.classList.toggle('mapa--oscuro', oscuro);
+    }
+    actualizarTiles();
+    document.addEventListener('bolsines:tema', actualizarTiles);
+
+    var capaRutas = L.layerGroup().addTo(lfMap);
+    var capaMarkers = L.layerGroup().addTo(lfMap);
+    var actuales = [];
+
+    function encuadrar() {
+      var bounds = L.latLngBounds([[origen.lat, origen.lng]]);
+      bolsines.forEach(function (b) {
+        bounds.extend([b.destino_lat, b.destino_lng]);
+        if (!b.sin_senal && b.lat && b.lng) {
+          bounds.extend([b.lat, b.lng]);
+        }
+      });
+      var pad = movil.matches
+        ? { paddingTopLeft: [20, 90], paddingBottomRight: [20, 240] }
+        : { paddingTopLeft: [380, 110], paddingBottomRight: [400, 100] };
+      lfMap.fitBounds(bounds, pad);
+    }
+
+    function dibujarRutas(b, recorrida, restante, acento) {
+      L.polyline(recorrida, { color: acento, weight: 5, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }).addTo(capaRutas);
+      L.polyline(restante, { color: acento, weight: 4, opacity: 0.6, dashArray: '2, 10', lineCap: 'round', lineJoin: 'round' }).addTo(capaRutas);
+    }
+    function render(lista) {
+      actuales = lista;
+      capaMarkers.clearLayers();
+      capaRutas.clearLayers();
+
+      var acento = getComputedStyle(document.documentElement).getPropertyValue('--acento').trim() || '#f43f5e';
+
+      // 1. Origen
+      var iconOrigen = L.divIcon({
+        className: 'mapa__pin-leaflet',
+        html: '<div class="mapa__pin" style="transform:translate(-50%,-50%);"><span class="mapa__origen"></span><span class="mapa__nombre">' + texto(origen.nombre) + '</span></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+      });
+      L.marker([origen.lat, origen.lng], { icon: iconOrigen, interactive: false }).addTo(capaMarkers);
+
+      // 2. Destinos
+      var vistos = {};
+      lista.forEach(function (b) {
+        if (vistos[b.destino]) return;
+        vistos[b.destino] = 1;
+        var iconDest = L.divIcon({
+          className: 'mapa__pin-leaflet',
+          html: '<div class="mapa__pin" style="transform:translate(-50%,-50%);"><span class="mapa__destino"></span><span class="mapa__nombre">' + texto(b.destino) + '</span></div>',
+          iconSize: [20, 20],
+          iconAnchor: [10, 10]
+        });
+        L.marker([b.destino_lat, b.destino_lng], { icon: iconDest, interactive: false }).addTo(capaMarkers);
+      });
+
+      // 3. Bolsines en viaje
+      lista.forEach(function (b) {
+        if (b.sin_senal || !b.lat || !b.lng) return;
+        var es = b.nro === estado.sel;
+        var btn = marcador(b, es);
+
+        var contenedor = document.createElement('div');
+        contenedor.className = 'mapa__pin' + (es ? ' is-sel' : '');
+        contenedor.style.transform = 'translate(-50%,-50%)';
+        contenedor.appendChild(btn);
+        if (es) {
+          contenedor.insertAdjacentHTML('beforeend', '<span class="mapa__etiqueta">' + nro(b.nro) + ' · ' + hace(b) + '</span>');
+
+          // Mientras llega la ruta por calles se ven las rectas; después se reemplazan.
+          dibujarRutas(b, [[origen.lat, origen.lng], [b.lat, b.lng]], [[b.lat, b.lng], [b.destino_lat, b.destino_lng]], acento);
+          Promise.all([
+            rutaPorCalles([origen.lat, origen.lng], [b.lat, b.lng]),
+            rutaPorCalles([b.lat, b.lng], [b.destino_lat, b.destino_lng])
+          ]).then(function (r) {
+            if (estado.sel !== b.nro) return;   // el usuario ya eligió otro
+            capaRutas.clearLayers();
+            dibujarRutas(b, r[0], r[1], acento);
+          }).catch(function () { /* sin ruteo quedan las rectas */ });
+        }
+
+        var iconBolsin = es
+          ? L.divIcon({
+              className: 'mapa__pin-leaflet',
+              html: '<div class="mapa__gota"><span class="mapa__gota-cuerpo"></span>' +
+                    '<span class="mapa__etiqueta mapa__gota-etiqueta">' + nro(b.nro) + ' · ' + hace(b) + '</span></div>',
+              iconSize: [36, 48],
+              iconAnchor: [18, 48]   // la punta de la gota marca la coordenada exacta
+            })
+          : L.divIcon({
+              className: 'mapa__pin-leaflet',
+              html: contenedor.outerHTML,
+              iconSize: [40, 40],
+              iconAnchor: [20, 20]
+            });
+
+        var marker = L.marker([b.lat, b.lng], { icon: iconBolsin, zIndexOffset: es ? 1000 : 100 }).addTo(capaMarkers);
+        marker.on('click', function () { seleccionar(b.nro); });
+      });
+    }
+
+    encuadrar();
+    window.addEventListener('resize', function () { lfMap.invalidateSize(); });
+
+    return {
+      render: render,
+      enfocar: function (b) {
+        if (b.sin_senal || !b.lat || !b.lng) return;
+        // en móvil la hoja tapa la parte de abajo: el punto se corre hacia arriba
+        var destino = L.latLng(b.lat, b.lng);
+        if (movil.matches) {
+          var p = lfMap.project(destino, ZOOM_BOLSIN).add([0, 120]);
+          destino = lfMap.unproject(p, ZOOM_BOLSIN);
+        }
+        lfMap.flyTo(destino, ZOOM_BOLSIN, { duration: 1.2 });
+      },
+      zoom: function (dir) {
+        if (dir === 0) encuadrar();
+        else if (dir > 0) lfMap.zoomIn();
+        else lfMap.zoomOut();
+      }
+    };
+  }
 
   // Mapa de reemplazo: proyección equirectangular de una caja alrededor de los puntos.
   function crearMapaReemplazo() {
@@ -268,7 +445,6 @@
       if (html) el.innerHTML = html;
       capa.appendChild(el); return el;
     }
-    function texto(t) { var s = document.createElement('span'); s.textContent = t; return s.innerHTML; }
 
     var fondo = $('[data-mapa-fondo]'), spanBase = null;
     function render(lista) {
@@ -303,7 +479,10 @@
     window.addEventListener('resize', function () { render(actuales); });
     return {
       render: render,
-      enfocar: function () { render(actuales); },
+      enfocar: function (b) {
+        if (!b.sin_senal) { vista.lat = b.lat; vista.lng = b.lng; vista.span = 0.6; }
+        render(actuales);
+      },
       zoom: function (dir) {
         if (dir === 0) encuadrar(); else vista.span *= dir > 0 ? 0.7 : 1.4;
         render(actuales);
@@ -376,7 +555,7 @@
     document.addEventListener('bolsines:tema', function () { mapa = crearGoogleMapa(lib); renderLista(); }, { once: true });
     return {
       render: render,
-      enfocar: function (b) { if (!b.sin_senal) gm.panTo({ lat: b.lat, lng: b.lng }); },
+      enfocar: function (b) { if (!b.sin_senal) { gm.panTo({ lat: b.lat, lng: b.lng }); gm.setZoom(ZOOM_BOLSIN); } },
       zoom: function (dir) { if (dir === 0) encuadrar(); else gm.setZoom(gm.getZoom() + dir); }
     };
   }

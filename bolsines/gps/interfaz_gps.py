@@ -1,7 +1,17 @@
 """InterfazGPS: clase boundary y *Cliente* del patrón Adapter."""
 from __future__ import annotations
 
-from django.conf import settings
+try:
+    from django.conf import settings
+except ImportError:
+    class _SettingsFallback:
+        GPS_MODEL_DEFAULT = 'XTR4500L'
+        GPS_API_KEYS = {
+            'XTR4500L': 'sk_xtr_9F3a7C21bE6d4A10f2c8e5b7d913',
+            'NAVTRACKQX7A': 'sk_nav_7b61d9e4c3a2485fae10c77d5b2f',
+            'GEOPULSEMTR900': 'sk_geo_f2d84a1c9e7345b8a6d1c3f0972e',
+        }
+    settings = _SettingsFallback()
 
 from .adaptadores import (AdaptadorGPSGeoPulseMTR900, AdaptadorGPSNavTrackQX7A, AdaptadorGPSXTR4500L,
                           IAdaptadorGPSTracker, Matriz)

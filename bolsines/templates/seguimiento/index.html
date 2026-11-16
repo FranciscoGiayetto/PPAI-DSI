@@ -3,6 +3,194 @@
 {% block title %}Seguimiento{% endblock %}
 {% block body_class %}pagina-app pagina-seguimiento{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  .leaflet-container {
+    background: var(--fondo) !important;
+    font-family: var(--font-sans);
+  }
+  .leaflet-control-attribution {
+    background: var(--superficie-vidrio) !important;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--tinta-tenue) !important;
+    font-size: 10px !important;
+    border-radius: var(--radius-m);
+    margin: 8px !important;
+    border: 1px solid var(--linea);
+  }
+  .leaflet-control-attribution a {
+    color: var(--acento) !important;
+    text-decoration: none;
+  }
+  .mapa--oscuro .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9) saturate(0.6);
+  }
+  .mapa__pin-leaflet {
+    background: transparent !important;
+    border: none !important;
+  }
+  /* Pin del bolsín seleccionado: la punta inferior queda sobre la coordenada */
+  .mapa__gota {
+    position: relative;
+    width: 36px;
+    height: 48px;
+    animation: gota-cae 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mapa__gota-cuerpo {
+    position: absolute;
+    left: 3px;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    background: var(--acento, #f43f5e);
+    border: 3px solid #ffffff;
+    border-radius: 50% 50% 50% 0;
+    transform: translateY(4px) rotate(-45deg);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  }
+  .mapa__gota-cuerpo::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+  .mapa__gota-etiqueta {
+    position: absolute;
+    bottom: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  @keyframes gota-cae {
+    from { transform: translateY(-24px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  /* Puntos y marcadores GPS profesionales en el mapa */
+  .mapa__marcador-contenedor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+  .mapa__punto-gps {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #0284c7;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55), 0 0 0 3px rgba(2, 132, 199, 0.4);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mapa__marcador-contenedor:hover .mapa__punto-gps {
+    transform: scale(1.15);
+    background: #0ea5e9;
+  }
+  .mapa__marcador-contenedor.is-sel .mapa__punto-gps {
+    width: 46px;
+    height: 46px;
+    background: var(--acento, #f43f5e);
+    border-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 0 6px color-mix(in srgb, var(--acento, #f43f5e) 40%, transparent);
+    transform: scale(1.1);
+  }
+  .mapa__pulso-gps {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(2, 132, 199, 0.35);
+    animation: radar-pulso 2s infinite ease-out;
+    pointer-events: none;
+  }
+  .mapa__pulso-gps.is-sel {
+    width: 60px;
+    height: 60px;
+    background: color-mix(in srgb, var(--acento, #f43f5e) 40%, transparent);
+    animation: radar-pulso 1.5s infinite ease-out;
+  }
+  @keyframes radar-pulso {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+  }
+  .mapa__badge-nro {
+    margin-top: 3px;
+    background: rgba(15, 23, 42, 0.9);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.03em;
+  }
+  .mapa__badge-nro.is-sel {
+    background: var(--acento, #f43f5e);
+    color: #ffffff;
+    border-color: #ffffff;
+    font-weight: 800;
+  }
+  /* Puntos para Origen y Destinos */
+  .mapa__punto-origen {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.4), 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .mapa__badge-origen {
+    margin-top: 2px;
+    font-family: var(--font-display, sans-serif);
+    font-size: 14px;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.85);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    white-space: nowrap;
+  }
+  .mapa__punto-destino {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #6366f1;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.35), 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .mapa__badge-destino {
+    margin-top: 2px;
+    font-family: var(--font-display, sans-serif);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.85);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    white-space: nowrap;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 {# ── Mapa a pantalla completa ── #}
 <div id="mapa" class="mapa" role="region" aria-label="Mapa de bolsines en viaje">
