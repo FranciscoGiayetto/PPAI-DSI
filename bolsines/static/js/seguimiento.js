@@ -124,11 +124,7 @@
   function reintentar(b, btn) {
     btn.disabled = true;
     btn.querySelector('span').textContent = 'Consultando…';
-    setTimeout(function () {
-      btn.disabled = false;
-      btn.querySelector('span').textContent = 'Reintentar';
-      avisar('El GPS de N.º ' + b.nro + ' sigue sin contestar. Probá en unos minutos.', true);
-    }, 1400);
+    window.location.reload();   // el servidor vuelve a consultar al GPS Tracker
   }
 
   /* ───── filtros ───── */
@@ -178,10 +174,16 @@
   function cerrarDialogo() { velo.hidden = true; if (volverFoco) volverFoco.focus(); }
   $('[data-dialogo-no]').addEventListener('click', cerrarDialogo);                        // A5
   $('[data-dialogo-si]').addEventListener('click', function () {
-    // TODO CU 30: POST al servidor para que el Gestor mande el correo. Hoy solo se simula.
+    // CU 30: el servidor (Gestor) manda el correo al gerente de la CM destino.
     var b = dialogoBolsin;
     cerrarDialogo();
-    avisar('Listo, la Gerencia de ' + b.destino + ' ya tiene la ubicación');
+    fetch(cfg.urlNotificar.replace('/0/', '/' + b.nro + '/'), { method: 'POST', headers: { 'X-CSRFToken': cfg.csrf } })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (res.ok) avisar('Listo, la Gerencia de ' + b.destino + ' ya tiene la ubicación');
+        else avisar(res.j.mensaje || 'No se pudo enviar el correo.', true);
+      })
+      .catch(function () { avisar('No se pudo enviar el correo.', true); });
   });
   velo.addEventListener('click', function (e) { if (e.target === velo) cerrarDialogo(); });
   document.addEventListener('keydown', function (e) {

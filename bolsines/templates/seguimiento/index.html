@@ -158,7 +158,9 @@
     mapsKey: "{{ google_maps_key|escapejs }}",
     mapId: "{{ google_maps_map_id|escapejs }}",
     origenCiudad: "{{ cm_ciudad|escapejs }}",
-    cmNombre: "{{ cm_nombre|escapejs }}"
+    cmNombre: "{{ cm_nombre|escapejs }}",
+    csrf: "{{ csrf_token }}",
+    urlNotificar: "/seguimiento/0/notificar/"
   };
 </script>
 {% endblock %}

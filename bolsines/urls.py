@@ -9,4 +9,5 @@ urlpatterns = [
     path('logout/', auth_views.logout_view, name='logout'),
     path('dashboard/', auth_views.dashboard_view, name='dashboard'),
     path('seguimiento/', seguimiento_views.seguimiento_view, name='seguimiento'),
+    path('seguimiento/<int:nro_bolsin>/notificar/', seguimiento_views.notificar_ubicacion_view, name='notificar_ubicacion'),
 ]

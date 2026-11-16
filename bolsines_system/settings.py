@@ -1,4 +1,4 @@
-"""
+﻿"""
 Configuración Django — Sistema Bolsines
 Grupo 5 · PPAI 2026 · UTN DSI
 """
@@ -11,7 +11,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-grupo5-bolsines-2026')
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
@@ -88,6 +88,10 @@ GPS_API_KEYS = {
     'GEOPULSEMTR900': os.getenv('GPS_API_KEY_GEOPULSEMTR900', 'sk_geo_f2d84a1c9e7345b8a6d1c3f0972e'),
 }
 GPS_MODEL_DEFAULT = os.getenv('GPS_MODEL_DEFAULT', 'XTR4500L')
+
+# Correo (CU 30). Por defecto sale por consola; configurar SMTP en .env para envío real.
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'bolsines@sistema.local')
 
 # Google Maps
 GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')

@@ -7,25 +7,26 @@ from django.db import transaction
 
 from bolsines.models import Bolsin, ComisionMedica, Empleado, Remito
 
+# Códigos alineados con los bolsines precargados en el servidor GPS de la cátedra (gps-api).
 CMS = [
-    ('CMJ-COR', 'Comisión Médica Jurisdiccional Córdoba', 'CMJ'),
-    ('CMC-CABA', 'Comisión Médica Central CABA', 'CMC'),
-    ('CMJ-ROS', 'Comisión Médica Jurisdiccional Rosario', 'CMJ'),
-    ('CMJ-MZA', 'Comisión Médica Jurisdiccional Mendoza', 'CMJ'),
-    ('CMJ-TUC', 'Comisión Médica Jurisdiccional Tucumán', 'CMJ'),
-    ('CMJ-SAL', 'Comisión Médica Jurisdiccional Salta', 'CMJ'),
+    ('CM-CBA-01', 'Comisión Médica Jurisdiccional Córdoba', 'CMJ'),
+    ('CM-CBA-02', 'Comisión Médica Jurisdiccional Córdoba Sur', 'CMJ'),
+    ('CM-BA-01', 'Comisión Médica Central CABA', 'CMC'),
+    ('CM-ROS-02', 'Comisión Médica Jurisdiccional Rosario', 'CMJ'),
+    ('CM-MDZ-03', 'Comisión Médica Jurisdiccional Mendoza', 'CMJ'),
 ]
-# (nro, destino, estado, peso g, cantidad de remitos)
+# (nro, destino, estado, peso g, cantidad de remitos). Los nros 101-103 existen en el GPS mock (origen CM-CBA-01).
 BOLSINES = [
-    (1048, 'CMC-CABA', Bolsin.ESTADO_ENVIADO, 2400, 3),
-    (1047, 'CMJ-ROS', Bolsin.ESTADO_ENVIADO, 1800, 2),
-    (1046, 'CMJ-MZA', Bolsin.ESTADO_ENVIADO, 3100, 4),
-    (1044, 'CMJ-TUC', Bolsin.ESTADO_ENVIADO, 950, 1),
-    (1043, 'CMC-CABA', Bolsin.ESTADO_ENVIADO, 2050, 2),
-    (1041, 'CMJ-SAL', Bolsin.ESTADO_ENVIADO, 1500, 2),   # sin señal en la demo (A3)
-    (1049, 'CMJ-ROS', Bolsin.ESTADO_CERRADO, 1200, 1),   # no se muestra: no está Enviado
+    (101, 'CM-ROS-02', Bolsin.ESTADO_ENVIADO, 2400, 3),
+    (102, 'CM-MDZ-03', Bolsin.ESTADO_ENVIADO, 1800, 2),
+    (103, 'CM-BA-01', Bolsin.ESTADO_ENVIADO, 3100, 4),
+    (150, 'CM-ROS-02', Bolsin.ESTADO_ENVIADO, 950, 1),    # no existe en el GPS: demuestra el flujo A3
+    (120, 'CM-ROS-02', Bolsin.ESTADO_CERRADO, 1200, 1),   # no se muestra: no está Enviado
 ]
-
+# Gerentes de CM destino (reciben el correo del CU 30).
+GERENTES = [('gcm-ros', '50101', 'CM-ROS-02', 'gerente.rosario@bolsines.test'),
+            ('gcm-mdz', '50102', 'CM-MDZ-03', 'gerente.mendoza@bolsines.test'),
+            ('gcm-ba', '50103', 'CM-BA-01', 'gerente.caba@bolsines.test')]
 
 class Command(BaseCommand):
     help = 'Carga datos de prueba (usuario: legajo 40211 / contraseña bolsines2026).'
@@ -42,15 +43,20 @@ class Command(BaseCommand):
         user.set_password('bolsines2026')
         user.save()
         Empleado.objects.update_or_create(user=user, defaults={
-            'legajo': '40211', 'rol': Empleado.ROL_ENCARGADO_BOLSINES, 'cm_asignada': cms['CMJ-COR']})
+            'legajo': '40211', 'rol': Empleado.ROL_ENCARGADO_BOLSINES, 'cm_asignada': cms['CM-CBA-01']})
+
+        for username, legajo, cm, mail in GERENTES:
+            g, _ = User.objects.get_or_create(username=username, defaults={'first_name': 'Gerente', 'last_name': cm, 'email': mail})
+            g.set_password('bolsines2026'); g.save()
+            Empleado.objects.update_or_create(user=g, defaults={'legajo': legajo, 'rol': Empleado.ROL_GERENTE_CM, 'cm_asignada': cms[cm]})
 
         nro_remito = 5000
         for i, (nro, destino, estado, peso, n_remitos) in enumerate(BOLSINES):
             bolsin, _ = Bolsin.objects.update_or_create(nro_bolsin=nro, defaults={
                 'fecha': date.today() - timedelta(days=i % 3),
                 'peso_gramos': peso,
-                'nro_precinto': f'PR-26-{4800 + nro - 1036:06d}',
-                'cm_origen': cms['CMJ-COR'],
+                'nro_precinto': f'PR-26-{4800 + nro:06d}',
+                'cm_origen': cms['CM-CBA-01'],
                 'cm_destino': cms[destino],
                 'estado_actual': estado,
             })

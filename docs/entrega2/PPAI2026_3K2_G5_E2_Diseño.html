@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<title>PPAI2026_3K2_G5_E2_Diseño</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+@page { size: A4; margin: 22mm 18mm 20mm 18mm; }
+body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.4; color:#111; }
+h1 { font-size: 18pt; border-bottom: 2px solid #0C5EBC; padding-bottom: 4px; page-break-before: always; }
+h2 { font-size: 13.5pt; color:#0C5EBC; } h3 { font-size: 11.5pt; }
+.caratula { text-align:center; page-break-after: always; }
+.caratula h1 { border:0; page-break-before: avoid; font-size: 24pt; }
+.caratula table { margin: 20px auto; text-align:left; border-collapse: collapse; }
+.caratula td, table.t td, table.t th { border:1px solid #999; padding: 4px 8px; }
+table.t { border-collapse: collapse; margin: 8px 0; } table.t th { background:#eef3fa; }
+.pb { page-break-before: always; } .placeholder { background:#fff3cd; padding: 2px 6px; }
+.mermaid { text-align:center; margin: 10px 0; } figure { margin: 8px 0; text-align:center; } figcaption { font-size: 9.5pt; color:#444; }
+code { font-size: 9.5pt; background:#f2f2f2; padding: 0 3px; }
+pre { background:#f6f6f6; padding:8px; font-size: 9pt; white-space: pre-wrap; }
+</style></head><body>
+
+<div class="caratula">
+<p><b>Universidad Tecnológica Nacional — Facultad Regional Córdoba</b><br>Ingeniería en Sistemas de Información<br>Cátedra: Diseño de Sistemas de Información</p>
+<h1>Proyecto Práctico de Aplicación Integrador</h1>
+<h2>Entrega 2: Diseño</h2>
+<table>
+<tr><td><b>Caso de estudio</b></td><td>Sistema Bolsines</td></tr>
+<tr><td><b>Caso de uso</b></td><td>CU 36 – Consultar seguimiento de bolsines</td></tr>
+<tr><td><b>Patrón de diseño</b></td><td>Adapter (Gamma et al.)</td></tr>
+<tr><td><b>Curso</b></td><td>3K2</td></tr>
+<tr><td><b>Número de entrega</b></td><td>E2</td></tr>
+<tr><td><b>Grupo</b></td><td>G5</td></tr>
+<tr><td><b>Fecha de entrega</b></td><td><span class="placeholder">[COMPLETAR dd/mm/2026]</span></td></tr>
+<tr><td><b>Docentes del curso</b></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
+<tr><td><b>Docente tutor</b></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
+</table>
+<h3>Integrantes</h3>
+<table class="t">
+<tr><th>Apellido y nombre</th><th>Legajo</th><th>Correo electrónico</th></tr>
+<tr><td>Bergero Juncos, Nicanor Mario</td><td><span class="placeholder">[COMPLETAR]</span></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
+<tr><td>Giayetto, Francisco</td><td><span class="placeholder">[COMPLETAR]</span></td><td>frangiayetto@gmail.com</td></tr>
+<tr><td><span class="placeholder">[COMPLETAR integrante]</span></td><td></td><td></td></tr>
+</table>
+</div>
+
+<h1>1. Identificación del patrón implementado</h1>
+<h2>1.1 Patrón: Adapter (estructural, GoF)</h2>
+<p><b>Problema que se resuelve.</b> Para seguimiento de bolsines (CU 36) el sistema debe consultar la ubicación de cada bolsín a un <i>GPS Tracker</i>. Existen <b>tres modelos</b> de dispositivo con interfaces incompatibles entre sí, y el sistema no debe depender de cuál esté en uso:</p>
+<table class="t">
+<tr><th>Modelo</th><th>Operación</th><th>Parámetros</th><th>Respuesta</th></tr>
+<tr><td>XTR-4500L</td><td><code>getBolsinLocation</code></td><td>apiKey, numeroBolsin: int, codigoCMOrigen: String</td><td>JSON (String)</td></tr>
+<tr><td>NavTrack QX-7A</td><td><code>retrieveTrackingData</code></td><td>apiKey, numeroBolsin: int, codigoCMDestino: String</td><td>CSV (String)</td></tr>
+<tr><td>GeoPulse MTR-900</td><td><code>fetchCargoPositions</code></td><td>apiKey, numeroBolsin: int</td><td>Matriz Object[][]</td></tr>
+</table>
+<p><b>Justificación.</b> Sin el patrón, el gestor tendría condicionales por modelo y conocería nombres de operaciones, parámetros y formatos de cada proveedor; agregar un cuarto modelo obligaría a modificarlo. Con Adapter se define una interfaz objetivo única (<code>IAdaptadorGPSTracker</code>) y un adaptador por modelo que traduce el pedido (parámetros) y la respuesta (JSON/CSV/matriz) a una matriz común <code>String[][]</code> con una fila por bolsín: número, latitud, longitud, fecha y hora de última actualización. Un nuevo modelo solo requiere un adaptador nuevo (principio abierto/cerrado).</p>
+<h2>1.2 Participantes</h2>
+<table class="t">
+<tr><th>Rol en el patrón</th><th>Clase</th></tr>
+<tr><td>Cliente</td><td><code>InterfazGPS</code></td></tr>
+<tr><td>Objetivo (Target)</td><td><code>IAdaptadorGPSTracker</code></td></tr>
+<tr><td>Adaptador (Adapter)</td><td><code>AdaptadorGPSXTR4500L</code>, <code>AdaptadorGPSNavTrackQX7A</code>, <code>AdaptadorGPSGeoPulseMTR900</code></td></tr>
+<tr><td>Adaptable (Adaptee)</td><td><code>ServicioGPSTrackerXTR4500L</code>, <code>ServicioGPSTrackerNavTrackQX7A</code>, <code>ServicioGPSTrackerGeoPulseMTR900</code></td></tr>
+</table>
+
+<h1>2. Vista estática – Diagrama de clases de diseño</h1>
+<p>Rediseño de la realización del CU 36 aplicando Adapter. Visibilidad: <code>+</code> público, <code>-</code> privado. (Diagrama fuente editable: <code>ConsignasyDiagramas/PPAI2026_3K2_G5_E2_Adapter_CU36.drawio</code>.)</p>
+<div class="mermaid">
+classDiagram
+direction TB
+class GestorSeguimientoBolsines {
+  &lt;&lt;control&gt;&gt;
+  -bolsinesEnviados: Bolsin[]
+  -bolsinSeleccionado: Bolsin
+  -comisionOrigenEmpleado: String
+  -datosUbicaciones: String[][]
+  -empleadoLogueado: Empleado
+  +newSeguimientoBolsin() void
+  +obtenerComisionMedicaDeEmpleadoLogueado() void
+  +mostrarComisionMedica() void
+  +buscarBolsinesEnviadosDeComisionMedica() void
+  +buscarDatosLocalizacion() void
+  +enviarDatosLocalizacion(datosLocalizacion: String[][]) void
+  +mapeoBolsin() void
+  +mostrarOpcionesSeleccion() void
+  +tomarSeleccionBolsin() void
+  +mostrarOpcionesEnviarCorreo() void
+  +tomarConfirmacionEnviarCorreo() void
+  +notificarUbicacionDeBolsin() void
+  +finCU() void
+}
+class InterfazGPS {
+  &lt;&lt;boundary&gt;&gt;
+  -clavesAPIGPSTracker: String[]
+  -datosLocalizacion: String[][]
+  -modeloGPSTracker: String
+  +obtenerLocalizacion(datosBolsines: String[][]) void
+}
+class IAdaptadorGPSTracker {
+  &lt;&lt;interface&gt;&gt;
+  +adaptarLocalizacion() void
+  +obtenerLocalizacionBolsines(datosBolsines: String[][]) String[][]
+  +solicitarLocalizacion(datosBolsines: String[][]) void
+}
+class AdaptadorGPSXTR4500L {
+  -claveAPI: String
+  -localizacionesAdaptadas: String[][]
+  -localizacionesRecibidas: String[]
+  +new(claveAPI: String) AdaptadorGPSXTR4500L
+  +adaptarLocalizacion() void
+  +obtenerLocalizacionBolsines(datosBolsines: String[][]) String[][]
+  +solicitarLocalizacion(datosBolsines: String[][]) void
+}
+class AdaptadorGPSNavTrackQX7A {
+  -claveAPI: String
+  -localizacionesAdaptadas: String[][]
+  -localizacionesRecibidas: String[]
+  +adaptarLocalizacion() void
+  +obtenerLocalizacionBolsines(datosBolsines: String[][]) String[][]
+  +solicitarLocalizacion(datosBolsines: String[][]) void
+}
+class AdaptadorGPSGeoPulseMTR900 {
+  -claveAPI: String
+  -localizacionesAdaptadas: String[][]
+  -localizacionesRecibidas: Object[][]
+  +adaptarLocalizacion() void
+  +obtenerLocalizacionBolsines(datosBolsines: String[][]) String[][]
+  +solicitarLocalizacion(datosBolsines: String[][]) void
+}
+class ServicioGPSTrackerXTR4500L {
+  +getBolsinLocation(apiKey: String, numeroBolsin: int, codigoCMOrigen: String) String
+}
+class ServicioGPSTrackerNavTrackQX7A {
+  +retrieveTrackingData(apiKey: String, numeroBolsin: int, codigoCMDestino: String) String
+}
+class ServicioGPSTrackerGeoPulseMTR900 {
+  +fetchCargoPositions(apiKey: String, numeroBolsin: int) Object[][]
+}
+GestorSeguimientoBolsines "1" --> "1" InterfazGPS
+InterfazGPS "1" --> "1" IAdaptadorGPSTracker
+IAdaptadorGPSTracker &lt;|.. AdaptadorGPSXTR4500L
+IAdaptadorGPSTracker &lt;|.. AdaptadorGPSNavTrackQX7A
+IAdaptadorGPSTracker &lt;|.. AdaptadorGPSGeoPulseMTR900
+AdaptadorGPSXTR4500L "1" --> "1" ServicioGPSTrackerXTR4500L
+AdaptadorGPSNavTrackQX7A "1" --> "1" ServicioGPSTrackerNavTrackQX7A
+AdaptadorGPSGeoPulseMTR900 "1" --> "1" ServicioGPSTrackerGeoPulseMTR900
+</div>
+<p><b>Correspondencia con el código</b> (Python): <code>GestorSeguimientoBolsines</code> → <code>bolsines/services/gestor_seguimiento.py</code>; <code>InterfazGPS</code> → <code>bolsines/gps/interfaz_gps.py</code>; <code>IAdaptadorGPSTracker</code> y los tres adaptadores → <code>bolsines/gps/adaptadores.py</code>; servicios (adaptables) → <code>bolsines/gps/servicios.py</code>. Los métodos están en <i>snake_case</i> (convención de Python); el boundary web (vista y plantilla) cumple el rol de <code>mostrar…</code>/<code>tomar…</code> del gestor.</p>
+
+<h1>3. Vista dinámica – Diagrama de secuencia de diseño</h1>
+<p>Parte del escenario rediseñada por el patrón (paso 4 y 5 del CU 36), modelo XTR-4500L. Para NavTrack y GeoPulse la secuencia es idéntica cambiando el adaptador concreto y la operación del servicio.</p>
+<div class="mermaid">
+sequenceDiagram
+participant G as :GestorSeguimientoBolsines
+participant I as :InterfazGPS
+participant A as :AdaptadorGPSXTR4500L
+participant S as :ServicioGPSTrackerXTR4500L
+G->>G: buscarDatosLocalizacion()
+G->>I: obtenerLocalizacion(datosBolsines: String[][])
+I->>A: new(claveAPI: String)
+I->>A: obtenerLocalizacionBolsines(datosBolsines: String[][]): String[][]
+A->>A: solicitarLocalizacion(datosBolsines: String[][])
+loop por cada bolsín
+  A->>S: getBolsinLocation(apiKey, numeroBolsin: int, codigoCMOrigen: String): String
+end
+A->>A: adaptarLocalizacion()
+A-->>I: String[][]
+I->>G: enviarDatosLocalizacion(datosLocalizacion: String[][])
+</div>
+<ul>
+<li><b>obtenerLocalizacion()</b>: el gestor crea la InterfazGPS y le pasa una matriz (nº de bolsín, CM origen, CM destino). Según el modelo en uso crea el adaptador concreto con la clave API de ese modelo.</li>
+<li><b>obtenerLocalizacionBolsines()</b> (polimórfico): delega en el adaptador la obtención y adaptación: invoca <code>solicitarLocalizacion()</code>, luego <code>adaptarLocalizacion()</code> y retorna la matriz común.</li>
+<li><b>solicitarLocalizacion()</b>: adapta el pedido (nº a entero, CM origen para XTR / CM destino para NavTrack / ninguna para GeoPulse) e invoca el servicio.</li>
+<li><b>adaptarLocalizacion()</b>: interpreta JSON, CSV o matriz y agrupa en filas [nº, latitud, longitud, fecha y hora].</li>
+<li><b>enviarDatosLocalizacion()</b>: la InterfazGPS entrega al gestor los datos adaptados para ubicarlos en el mapa.</li>
+</ul>
+<p><b>Flujo alternativo A3</b>: si el servicio no responde, el adaptador propaga <code>GPSTrackerError</code>; el gestor lo captura y marca los bolsines como «sin señal» (la pantalla muestra el estado de error con opción de reintentar). Si el GPS no informa un bolsín puntual, ese bolsín queda sin señal y los demás se muestran normalmente.</p>
+
+<h1>4. Detalles de implementación</h1>
+<table class="t">
+<tr><th>Aspecto</th><th>Decisión</th></tr>
+<tr><td>Lenguaje</td><td>Python 3.12</td></tr>
+<tr><td>Framework</td><td>Django 5.0 (monolítico: vistas, ORM, autenticación y migraciones incluidos)</td></tr>
+<tr><td>Tecnología</td><td>Web (plantillas Django + HTML/CSS/JS; mapa con Google Maps JavaScript API, con mapa de reemplazo si no hay clave)</td></tr>
+<tr><td>Base de datos</td><td>SQLite</td></tr>
+<tr><td>Persistencia</td><td>Django ORM (modelos <code>Bolsin</code>, <code>ComisionMedica</code>, <code>Empleado</code>, <code>Remito</code>, etc. + migraciones)</td></tr>
+<tr><td>GPS Tracker</td><td>API simulada provista por la cátedra (Spring Boot, <code>gps-api/</code>, puerto 8080), consumida por HTTP con <code>requests</code>; una clave API por modelo</td></tr>
+<tr><td>Correo (CU 30)</td><td><code>django.core.mail</code> (salida por consola por defecto; SMTP configurable por variable de entorno)</td></tr>
+<tr><td>Pruebas</td><td><code>manage.py test</code>: 16 pruebas (adaptadores, interfaz, gestor con A1/A3, vista, CU 30)</td></tr>
+</table>
+<h2>Capas y consistencia con el modelado</h2>
+<ul>
+<li><b>Boundary:</b> vista <code>seguimiento_views.py</code> + plantilla (<code>seguimiento/index.html</code>) e <code>InterfazGPS</code>.</li>
+<li><b>Control:</b> <code>GestorSeguimientoBolsines</code>.</li>
+<li><b>Entidades:</b> modelos Django.</li>
+<li>El frontend nunca consulta al GPS: siempre pasa por el gestor.</li>
+</ul>
+<h2>Cómo ejecutar</h2>
+<pre>python -m venv .venv ; .venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py seed_db
+python manage.py runserver      # levanta Django (8000) y el servidor GPS (8080)</pre>
+<p>Usuario de prueba: legajo <code>40211</code>, contraseña <code>bolsines2026</code> (Encargado de Bolsines, CM-CBA-01).</p>
+<h2>Flujos implementados</h2>
+<table class="t">
+<tr><th>Flujo</th><th>Estado</th></tr>
+<tr><td>Principal (1–9, con CU 30)</td><td>Implementado</td></tr>
+<tr><td>A1 Sin bolsines Enviados</td><td>Implementado (estado vacío)</td></tr>
+<tr><td>A2 Filtro sin resultados</td><td>Implementado</td></tr>
+<tr><td>A3 GPS no informa / no responde</td><td>Implementado (estado de error + reintentar)</td></tr>
+<tr><td>A4 Cancelar</td><td>Implementado (cerrar paneles / volver)</td></tr>
+<tr><td>A5 No enviar correo</td><td>Implementado (botón «Ahora no» del diálogo)</td></tr>
+</table>
+
+<h1>5. Diseño de experiencia de usuario</h1>
+<h2>5.1 Patrones de diseño de GUI aplicados</h2>
+<table class="t">
+<tr><th>Patrón</th><th>Dónde</th></tr>
+<tr><td>Master-Detail</td><td>Lista de bolsines (izquierda) y detalle del bolsín seleccionado (derecha)</td></tr>
+<tr><td>Búsqueda / filtro</td><td>Por nº de precinto y por CM destino (chips)</td></tr>
+<tr><td>Mapa integrado</td><td>Marcadores por bolsín Enviado y trayecto origen-destino</td></tr>
+<tr><td>Diálogo de confirmación</td><td>Confirmar el aviso por correo al gerente (CU 30)</td></tr>
+<tr><td>Badges / estado visual</td><td>Con señal / sin señal, cinta de estado</td></tr>
+<tr><td>Empty state y Error state</td><td>Flujos A1 y A3</td></tr>
+<tr><td>Diseño adaptable</td><td>Escritorio y móvil (hoja inferior), tema oscuro/claro</td></tr>
+</table>
+<p>El sistema de diseño (tokens, componentes, logos) está documentado en <code>docs/design-system/</code>.</p>
+<h2>5.2 MoodBoard</h2>
+<p class="placeholder">[Insertar aquí la fotografía del afiche del MoodBoard]</p>
+<h2>5.3 Capturas del sistema funcionando</h2>
+<div id="capturas"></div>
+<figure><img src="capturas/seguimiento.png" style="width:95%" onerror="this.parentNode.innerHTML='&lt;span class=placeholder&gt;[Insertar captura de la pantalla de seguimiento]&lt;/span&gt;'"><figcaption>Pantalla de seguimiento (CU 36)</figcaption></figure>
+
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', class:{useMaxWidth:true}, sequence:{useMaxWidth:true}});</script>
+</body></html>

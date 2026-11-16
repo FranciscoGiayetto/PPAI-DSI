@@ -1,4 +1,4 @@
-# Sistema Bolsines — PPAI 2026
+﻿# Sistema Bolsines — PPAI 2026
 ### UTN · Diseño de Sistemas I · Grupo 5
 
 ---
@@ -149,7 +149,7 @@ GOOGLE_MAPS_API_KEY=tu_clave_aqui
 
 # Django
 SECRET_KEY=cambiar-esto-en-produccion
-DEBUG=True
+DJANGO_DEBUG=True
 ```
 
 ---
@@ -215,21 +215,23 @@ PPAI-DSI/
 
 ## Patrón Adapter — cómo está organizado
 
-```
-IGPSTracker (interface.py)
-│   └── obtener_ubicacion(nro_bolsin, cm_codigo) → UbicacionBolsin
-│
-├── AdapterXTR4500L      llama a getBolsinLocation()     → JSON
-├── AdapterNavTrackQX7A  llama a retrieveTrackingData()  → CSV string
-└── AdapterGeoPulseMTR900 llama a fetchCargoPositions()  → Matriz
+Sigue el diagrama de clases de la Entrega 2 (`ConsignasyDiagramas/PPAI2026_3K2_G5_E2_Adapter_CU36*.drawio`):
 
-factory.py → get_gps_adapter("XTR4500L") devuelve el adapter correcto
+```
+GestorSeguimientoBolsines (services/gestor_seguimiento.py)   ← control
+└── InterfazGPS (gps/interfaz_gps.py)                        ← Cliente (elige el adaptador según GPS_MODEL_DEFAULT)
+    └── IAdaptadorGPSTracker (gps/adaptadores.py)            ← Objetivo
+        ├── AdaptadorGPSXTR4500L      → ServicioGPSTrackerXTR4500L      getBolsinLocation()     (JSON)
+        ├── AdaptadorGPSNavTrackQX7A  → ServicioGPSTrackerNavTrackQX7A  retrieveTrackingData()  (CSV)
+        └── AdaptadorGPSGeoPulseMTR900→ ServicioGPSTrackerGeoPulseMTR900 fetchCargoPositions()  (matriz)
 ```
 
-Los adapters aún no están implementados — se implementan cuando se suba el diseño (diagrama de clases y secuencia de la Entrega 2).
+Servicios en `gps/servicios.py`. Probar otro modelo: `GPS_MODEL_DEFAULT=NAVTRACKQX7A` (o `GEOPULSEMTR900`) en `.env`.
+Con los datos del servidor GPS de la cátedra, el XTR-4500L valida la CM origen (en el mock solo el 101 sale de CM-CBA-01, se ve 1 bolsín); NavTrack y GeoPulse muestran 101 y 102. El bolsín 150 no existe en el GPS (flujo A3).
+
+Tests: `python manage.py test bolsines`. Documento de la entrega: `docs/entrega2/`.
 
 ---
-
 ## Comandos útiles
 
 ```bash
