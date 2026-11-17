@@ -1,45 +1,99 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8">
 <title>PPAI2026_3K2_G5_E2_Diseño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
 @page { size: A4; margin: 22mm 18mm 20mm 18mm; }
-body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.4; color:#111; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 11pt; line-height: 1.4; color:#111; }
 h1 { font-size: 18pt; border-bottom: 2px solid #0C5EBC; padding-bottom: 4px; page-break-before: always; }
 h2 { font-size: 13.5pt; color:#0C5EBC; } h3 { font-size: 11.5pt; }
-.caratula { text-align:center; page-break-after: always; }
-.caratula h1 { border:0; page-break-before: avoid; font-size: 24pt; }
-.caratula table { margin: 20px auto; text-align:left; border-collapse: collapse; }
-.caratula td, table.t td, table.t th { border:1px solid #999; padding: 4px 8px; }
+table.t td, table.t th { border:1px solid #999; padding: 4px 8px; }
+/* ── Carátula (paleta y tipografías del design system de Bolsines) ── */
+@page portada { size: A4; margin: 0; }
+.portada { page: portada; page-break-after: always; position: relative; width: 210mm; height: 296mm; overflow: hidden;
+  background: #FFF7EB; color: #16324F; font-family: 'Roboto', Arial, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.portada__sol { position: absolute; inset: 0 0 auto 0; height: 158mm; background: #FDBD4F; clip-path: polygon(0 0, 100% 0, 100% 74%, 0 100%); }
+.portada__bolsa { position: absolute; right: 16mm; top: 30mm; width: 46mm; transform: rotate(-12deg); opacity: .95; }
+.portada__cab { position: absolute; left: 18mm; top: 15mm; right: 18mm; font-size: 8.5pt; letter-spacing: .14em; text-transform: uppercase; line-height: 1.6; }
+.portada__cab b { font-weight: 700; }
+.portada__logo { position: absolute; left: 18mm; top: 36mm; width: 62mm; }
+.portada__titulo { position: absolute; left: 18mm; top: 62mm; right: 70mm; }
+.portada__kicker { font-size: 10pt; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #0C5EBC; margin: 0 0 1mm; }
+.portada__grande { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 64pt; line-height: .92; margin: 0; color: #16324F; }
+.portada__sub { font-size: 12.5pt; margin: 3mm 0 0; }
+.portada__chips { position: absolute; left: 18mm; right: 18mm; top: 163mm; display: flex; flex-wrap: wrap; gap: 2.5mm; }
+.chip { background: #16324F; color: #FFF7EB; border-radius: 99px; padding: 1.6mm 4.5mm; font-size: 9.5pt; font-weight: 500; }
+.chip--acento { background: #0C5EBC; }
+.portada__cols { position: absolute; left: 18mm; right: 18mm; top: 185mm; display: grid; grid-template-columns: 1fr 1.15fr; gap: 12mm; }
+.portada__rotulo { font-family: 'Bebas Neue', Impact, sans-serif; font-size: 17pt; letter-spacing: .04em; margin: 0 0 2mm;
+  padding-bottom: 1.5mm; border-bottom: 2px solid #FDBD4F; }
+.portada__lista { list-style: none; margin: 0; padding: 0; font-size: 9.8pt; }
+.portada__lista li { display: flex; justify-content: space-between; gap: 4mm; padding: 1.25mm 0; border-bottom: 1px solid #e9dcc6; }
+.portada__lista .rol { color: #5b6b7d; font-size: 8.5pt; text-align: right; }
+.portada__lista .leg { font-family: 'Roboto Mono', Consolas, monospace; color: #0C5EBC; font-size: 9.5pt; }
+.portada__pie { position: absolute; left: 0; right: 0; bottom: 0; height: 15mm; background: #16324F; color: #FFF7EB;
+  display: flex; align-items: center; justify-content: space-between; padding: 0 18mm; font-size: 8.5pt; letter-spacing: .1em; text-transform: uppercase; }
+.portada__pie .cod { font-family: 'Roboto Mono', Consolas, monospace; color: #FDBD4F; letter-spacing: .02em; text-transform: none; }
 table.t { border-collapse: collapse; margin: 8px 0; } table.t th { background:#eef3fa; }
-.pb { page-break-before: always; } .placeholder { background:#fff3cd; padding: 2px 6px; }
+@page horizontal { size: A4 landscape; margin: 22mm 14mm 20mm 14mm; }
+.horizontal { page: horizontal; }
+.horizontal h1 { page-break-before: auto; }
+.horizontal h1 { margin-top: 0; }
+.horizontal .mermaid { margin: 4px 0 0; }
+.horizontal .mermaid svg { width: 100%; height: 130mm; max-width: 100% !important; }
+.horizontal p { margin: 4px 0; }
+.pb { page-break-before: always; }
+.capturas figure { page-break-inside: avoid; margin: 10px 0 16px; }
+.capturas img { width: 100%; border: 1px solid #bbb; } .placeholder { background:#fff3cd; padding: 2px 6px; }
 .mermaid { text-align:center; margin: 10px 0; } figure { margin: 8px 0; text-align:center; } figcaption { font-size: 9.5pt; color:#444; }
 code { font-size: 9.5pt; background:#f2f2f2; padding: 0 3px; }
 pre { background:#f6f6f6; padding:8px; font-size: 9pt; white-space: pre-wrap; }
 </style></head><body>
 
-<div class="caratula">
-<p><b>Universidad Tecnológica Nacional — Facultad Regional Córdoba</b><br>Ingeniería en Sistemas de Información<br>Cátedra: Diseño de Sistemas de Información</p>
-<h1>Proyecto Práctico de Aplicación Integrador</h1>
-<h2>Entrega 2: Diseño</h2>
-<table>
-<tr><td><b>Caso de estudio</b></td><td>Sistema Bolsines</td></tr>
-<tr><td><b>Caso de uso</b></td><td>CU 36 – Consultar seguimiento de bolsines</td></tr>
-<tr><td><b>Patrón de diseño</b></td><td>Adapter (Gamma et al.)</td></tr>
-<tr><td><b>Curso</b></td><td>3K2</td></tr>
-<tr><td><b>Número de entrega</b></td><td>E2</td></tr>
-<tr><td><b>Grupo</b></td><td>G5</td></tr>
-<tr><td><b>Fecha de entrega</b></td><td><span class="placeholder">[COMPLETAR dd/mm/2026]</span></td></tr>
-<tr><td><b>Docentes del curso</b></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
-<tr><td><b>Docente tutor</b></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
-</table>
-<h3>Integrantes</h3>
-<table class="t">
-<tr><th>Apellido y nombre</th><th>Legajo</th><th>Correo electrónico</th></tr>
-<tr><td>Bergero Juncos, Nicanor Mario</td><td><span class="placeholder">[COMPLETAR]</span></td><td><span class="placeholder">[COMPLETAR]</span></td></tr>
-<tr><td>Giayetto, Francisco</td><td><span class="placeholder">[COMPLETAR]</span></td><td>frangiayetto@gmail.com</td></tr>
-<tr><td><span class="placeholder">[COMPLETAR integrante]</span></td><td></td><td></td></tr>
-</table>
+<div class="portada">
+  <div class="portada__sol"></div>
+  <img class="portada__bolsa" src="../design-system/logos/bolsines-bolsa-de-pie.svg" alt="">
+  <div class="portada__cab"><b>Universidad Tecnológica Nacional · Facultad Regional Córdoba</b><br>Ingeniería en Sistemas de Información · Cátedra Diseño de Sistemas de Información</div>
+  <img class="portada__logo" src="../design-system/logos/bolsines-logotipo.svg" alt="Bolsines">
+  <div class="portada__titulo">
+    <p class="portada__kicker">Proyecto Práctico de Aplicación Integrador</p>
+    <p class="portada__grande">Entrega 2<br>Diseño</p>
+    <p class="portada__sub">Caso de estudio <b>Sistema Bolsines</b> · CU 36 Consultar seguimiento de bolsines</p>
+  </div>
+  <div class="portada__chips">
+    <span class="chip chip--acento">Patrón Adapter (Gamma et al.)</span>
+    <span class="chip">Curso 3K2</span>
+    <span class="chip">Grupo 5</span>
+    <span class="chip">Entrega E2</span>
+    <span class="chip">17/11/2026</span>
+  </div>
+  <div class="portada__cols">
+    <div>
+      <p class="portada__rotulo">Docentes del curso</p>
+      <ul class="portada__lista">
+        <li><span>Ing. Cecilia Massano</span><span class="rol">Profesora Adjunta</span></li>
+        <li><span>Ing. Valeria Abdala</span><span class="rol">Jefa de Trabajos Prácticos</span></li>
+        <li><span>Mauro Bastasini</span><span class="rol">Ayudante Alumno</span></li>
+        <li><span>Mateo Crespo</span><span class="rol">Ayudante Alumno</span></li>
+      </ul>
+    </div>
+    <div>
+      <p class="portada__rotulo">Integrantes</p>
+      <ul class="portada__lista">
+        <li><span>Aldasoro, Lautaro Gabriel</span><span class="leg">408739</span></li>
+        <li><span>Alonso Piñero, Bernardita María</span><span class="leg">409041</span></li>
+        <li><span>Bergero Juncos, Nicanor Mario</span><span class="leg">409938</span></li>
+        <li><span>Fini, Máximo</span><span class="leg">408646</span></li>
+        <li><span>Giayetto, Francisco</span><span class="leg">410633</span></li>
+        <li><span>Maldonado, Abril</span><span class="leg">409312</span></li>
+        <li><span>Pérez, Nehuén</span><span class="leg">410065</span></li>
+        <li><span>Ramos, Mateo Ignacio</span><span class="leg">411186</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="portada__pie"><span>Diseño de Sistemas de Información · Ciclo lectivo 2026</span><span class="cod">PPAI2026_3K2_G5_E2_Diseño</span></div>
 </div>
 
 <h1>1. Identificación del patrón implementado</h1>
@@ -61,6 +115,7 @@ pre { background:#f6f6f6; padding:8px; font-size: 9pt; white-space: pre-wrap; }
 <tr><td>Adaptable (Adaptee)</td><td><code>ServicioGPSTrackerXTR4500L</code>, <code>ServicioGPSTrackerNavTrackQX7A</code>, <code>ServicioGPSTrackerGeoPulseMTR900</code></td></tr>
 </table>
 
+<section class="horizontal">
 <h1>2. Vista estática – Diagrama de clases de diseño</h1>
 <p>Rediseño de la realización del CU 36 aplicando Adapter. Visibilidad: <code>+</code> público, <code>-</code> privado. (Diagrama fuente editable: <code>ConsignasyDiagramas/PPAI2026_3K2_G5_E2_Adapter_CU36.drawio</code>.)</p>
 <div class="mermaid">
@@ -143,8 +198,9 @@ AdaptadorGPSXTR4500L "1" --> "1" ServicioGPSTrackerXTR4500L
 AdaptadorGPSNavTrackQX7A "1" --> "1" ServicioGPSTrackerNavTrackQX7A
 AdaptadorGPSGeoPulseMTR900 "1" --> "1" ServicioGPSTrackerGeoPulseMTR900
 </div>
-<p><b>Correspondencia con el código</b> (Python): <code>GestorSeguimientoBolsines</code> → <code>bolsines/services/gestor_seguimiento.py</code>; <code>InterfazGPS</code> → <code>bolsines/gps/interfaz_gps.py</code>; <code>IAdaptadorGPSTracker</code> y los tres adaptadores → <code>bolsines/gps/adaptadores.py</code>; servicios (adaptables) → <code>bolsines/gps/servicios.py</code>. Los métodos están en <i>snake_case</i> (convención de Python); el boundary web (vista y plantilla) cumple el rol de <code>mostrar…</code>/<code>tomar…</code> del gestor.</p>
+</section>
 
+<section class="horizontal">
 <h1>3. Vista dinámica – Diagrama de secuencia de diseño</h1>
 <p>Parte del escenario rediseñada por el patrón (paso 4 y 5 del CU 36), modelo XTR-4500L. Para NavTrack y GeoPulse la secuencia es idéntica cambiando el adaptador concreto y la operación del servicio.</p>
 <div class="mermaid">
@@ -165,6 +221,7 @@ A->>A: adaptarLocalizacion()
 A-->>I: String[][]
 I->>G: enviarDatosLocalizacion(datosLocalizacion: String[][])
 </div>
+</section>
 <ul>
 <li><b>obtenerLocalizacion()</b>: el gestor crea la InterfazGPS y le pasa una matriz (nº de bolsín, CM origen, CM destino). Según el modelo en uso crea el adaptador concreto con la clave API de ese modelo.</li>
 <li><b>obtenerLocalizacionBolsines()</b> (polimórfico): delega en el adaptador la obtención y adaptación: invoca <code>solicitarLocalizacion()</code>, luego <code>adaptarLocalizacion()</code> y retorna la matriz común.</li>
@@ -177,14 +234,14 @@ I->>G: enviarDatosLocalizacion(datosLocalizacion: String[][])
 <h1>4. Detalles de implementación</h1>
 <table class="t">
 <tr><th>Aspecto</th><th>Decisión</th></tr>
-<tr><td>Lenguaje</td><td>Python 3.12</td></tr>
+<tr><td>Lenguaje</td><td>Python 3.11</td></tr>
 <tr><td>Framework</td><td>Django 5.0 (monolítico: vistas, ORM, autenticación y migraciones incluidos)</td></tr>
 <tr><td>Tecnología</td><td>Web (plantillas Django + HTML/CSS/JS; mapa con Google Maps JavaScript API, con mapa de reemplazo si no hay clave)</td></tr>
 <tr><td>Base de datos</td><td>SQLite</td></tr>
 <tr><td>Persistencia</td><td>Django ORM (modelos <code>Bolsin</code>, <code>ComisionMedica</code>, <code>Empleado</code>, <code>Remito</code>, etc. + migraciones)</td></tr>
 <tr><td>GPS Tracker</td><td>API simulada provista por la cátedra (Spring Boot, <code>gps-api/</code>, puerto 8080), consumida por HTTP con <code>requests</code>; una clave API por modelo</td></tr>
 <tr><td>Correo (CU 30)</td><td><code>django.core.mail</code> (salida por consola por defecto; SMTP configurable por variable de entorno)</td></tr>
-<tr><td>Pruebas</td><td><code>manage.py test</code>: 16 pruebas (adaptadores, interfaz, gestor con A1/A3, vista, CU 30)</td></tr>
+<tr><td>Pruebas</td><td><code>manage.py test</code>: 17 pruebas (adaptadores, interfaz, gestor con A1/A3, vista, CU 30)</td></tr>
 </table>
 <h2>Capas y consistencia con el modelado</h2>
 <ul>
@@ -193,6 +250,7 @@ I->>G: enviarDatosLocalizacion(datosLocalizacion: String[][])
 <li><b>Entidades:</b> modelos Django.</li>
 <li>El frontend nunca consulta al GPS: siempre pasa por el gestor.</li>
 </ul>
+<p><b>Correspondencia con el código</b> (Python): <code>GestorSeguimientoBolsines</code> → <code>bolsines/services/gestor_seguimiento.py</code>; <code>InterfazGPS</code> → <code>bolsines/gps/interfaz_gps.py</code>; <code>IAdaptadorGPSTracker</code> y los tres adaptadores → <code>bolsines/gps/adaptadores.py</code>; servicios (adaptables) → <code>bolsines/gps/servicios.py</code>. Los métodos están en <i>snake_case</i> (convención de Python); el boundary web (vista y plantilla) cumple el rol de <code>mostrar…</code>/<code>tomar…</code> del gestor.</p>
 <h2>Cómo ejecutar</h2>
 <pre>python -m venv .venv ; .venv\Scripts\activate
 pip install -r requirements.txt
@@ -208,27 +266,16 @@ python manage.py runserver      # levanta Django (8000) y el servidor GPS (8080)
 <tr><td>A2 Filtro sin resultados</td><td>Implementado</td></tr>
 <tr><td>A3 GPS no informa / no responde</td><td>Implementado (estado de error + reintentar)</td></tr>
 <tr><td>A4 Cancelar</td><td>Implementado (cerrar paneles / volver)</td></tr>
-<tr><td>A5 No enviar correo</td><td>Implementado (botón «Ahora no» del diálogo)</td></tr>
+<tr><td>A5 No enviar correo</td><td>Implementado (botón «No, gracias» del diálogo)</td></tr>
 </table>
 
-<h1>5. Diseño de experiencia de usuario</h1>
-<h2>5.1 Patrones de diseño de GUI aplicados</h2>
-<table class="t">
-<tr><th>Patrón</th><th>Dónde</th></tr>
-<tr><td>Master-Detail</td><td>Lista de bolsines (izquierda) y detalle del bolsín seleccionado (derecha)</td></tr>
-<tr><td>Búsqueda / filtro</td><td>Por nº de precinto y por CM destino (chips)</td></tr>
-<tr><td>Mapa integrado</td><td>Marcadores por bolsín Enviado y trayecto origen-destino</td></tr>
-<tr><td>Diálogo de confirmación</td><td>Confirmar el aviso por correo al gerente (CU 30)</td></tr>
-<tr><td>Badges / estado visual</td><td>Con señal / sin señal, cinta de estado</td></tr>
-<tr><td>Empty state y Error state</td><td>Flujos A1 y A3</td></tr>
-<tr><td>Diseño adaptable</td><td>Escritorio y móvil (hoja inferior), tema oscuro/claro</td></tr>
-</table>
-<p>El sistema de diseño (tokens, componentes, logos) está documentado en <code>docs/design-system/</code>.</p>
-<h2>5.2 MoodBoard</h2>
-<p class="placeholder">[Insertar aquí la fotografía del afiche del MoodBoard]</p>
-<h2>5.3 Capturas del sistema funcionando</h2>
-<div id="capturas"></div>
-<figure><img src="capturas/seguimiento.png" style="width:95%" onerror="this.parentNode.innerHTML='&lt;span class=placeholder&gt;[Insertar captura de la pantalla de seguimiento]&lt;/span&gt;'"><figcaption>Pantalla de seguimiento (CU 36)</figcaption></figure>
+<h1>5. Capturas del sistema funcionando</h1>
+<div class="capturas">
+<figure><img src="capturas/login.png"><figcaption>Figura 1. Inicio de sesión del Encargado de Bolsines.</figcaption></figure>
+<figure><img src="capturas/seguimiento.png"><figcaption>Figura 2. Flujo principal del CU 36: bolsines enviados desde la CM del usuario, ubicados en el mapa con los datos del GPS Tracker XTR-4500L. Los bolsines que el GPS no informa aparecen «sin señal» (flujo A3).</figcaption></figure>
+<figure><img src="capturas/sin_resultados.png"><figcaption>Figura 3. Flujo A2: no se encuentra bolsín con el número de precinto ingresado.</figcaption></figure>
+<figure><img src="capturas/dialogo.png"><figcaption>Figura 4. Diálogo de confirmación para notificar la ubicación al Gerente de la CM destino (CU 30); «No, gracias» corresponde al flujo A5.</figcaption></figure>
+</div>
 
-<script>mermaid.initialize({startOnLoad:true, theme:'neutral', class:{useMaxWidth:true}, sequence:{useMaxWidth:true}});</script>
+<script>mermaid.initialize({startOnLoad:true, theme:'neutral', class:{useMaxWidth:true, nodeSpacing:18, rankSpacing:26, padding:4}, sequence:{useMaxWidth:true}});</script>
 </body></html>
