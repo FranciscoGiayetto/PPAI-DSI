@@ -24,7 +24,21 @@
 
   /* ───── utilidades ───── */
   function nro(n) { return 'N.º ' + n; }
-  function hace(b) { return b.sin_senal ? 'sin señal' : 'hace ' + b.hace_min + ' min'; }
+  /* Antigüedad de la última señal en la unidad más legible (min, h, días, meses, años). */
+  function hace(b) {
+    if (b.sin_senal) return 'sin señal';
+    var min = b.hace_min;
+    if (min < 1) return 'recién';
+    if (min < 60) return 'hace ' + min + ' min';
+    var h = Math.floor(min / 60);
+    if (h < 24) return 'hace ' + h + ' h';
+    var dias = Math.floor(h / 24);
+    if (dias < 30) return 'hace ' + dias + (dias === 1 ? ' día' : ' días');
+    var meses = Math.floor(dias / 30);
+    if (meses < 12) return 'hace ' + meses + (meses === 1 ? ' mes' : ' meses');
+    var anios = Math.floor(meses / 12);
+    return 'hace ' + anios + (anios === 1 ? ' año' : ' años');
+  }
   function dosDigitos(n) { return (n < 10 ? '0' : '') + n; }
   function texto(t) { var s = document.createElement('span'); s.textContent = t; return s.innerHTML; }
   var ZOOM_BOLSIN = 13;
