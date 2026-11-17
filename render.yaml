@@ -1,0 +1,15 @@
+# Blueprint de Render: un único servicio web (Docker) con Django + GPS de la cátedra.
+services:
+  - type: web
+    name: bolsines-g5
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /login/
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: GPS_MODEL_DEFAULT
+        value: XTR4500L
